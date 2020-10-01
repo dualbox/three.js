@@ -116,6 +116,7 @@ export { Cylindrical } from './math/Cylindrical';
 export { Plane } from './math/Plane';
 export { Frustum } from './math/Frustum';
 export { Sphere } from './math/Sphere';
+export { Cone } from './math/Cone';
 export { Ray } from './math/Ray';
 export { Matrix4 } from './math/Matrix4';
 export { Matrix3 } from './math/Matrix3';
