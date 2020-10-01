@@ -1,6 +1,3 @@
-var terser = require( 'rollup-plugin-terser' ).terser; // minify
-var prettier = require( 'rollup-plugin-prettier' );
-
 function glconstants() {
 
 	var constants = {
@@ -193,50 +190,24 @@ function glsl() {
 
 }
 
-export default [
-	{
-		input: 'src/Three.js',
-		plugins: [
-			glconstants(),
-			glsl()
-		],
-		// sourceMap: true,
-		output: [
-			{
-				format: 'umd',
-				name: 'THREE',
-				file: 'build/three.js',
-				indent: '\t'
-			},
-			{
-				format: 'es',
-				file: 'build/three.module.js',
-				indent: '\t'
-			}
-		]
-	},
-
-	{
-		input: 'src/Three.js',
-		plugins: [
-			glconstants(),
-			glsl(),
-			terser(),
-			prettier( {
-				parser: 'babel',
-				tabWidth: 0,
-				singleQuote: false,
-				bracketSpacing: false
-			} )
-		],
-		// sourceMap: true,
-		output: [
-			{
-				format: 'umd',
-				name: 'THREE',
-				file: 'build/three.min.js',
-				indent: '\t'
-			}
-		]
-	},
-];
+export default {
+	input: 'src/Three.js',
+	plugins: [
+		glconstants(),
+		glsl()
+	],
+	// sourceMap: true,
+	output: [
+		{
+			format: 'umd',
+			name: 'THREE',
+			file: 'build/three.js',
+			indent: '\t'
+		},
+		{
+			format: 'es',
+			file: 'build/three.module.js',
+			indent: '\t'
+		}
+	]
+};
