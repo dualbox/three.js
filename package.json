@@ -62,7 +62,9 @@
     "google-closure-compiler": "20181210.0.0",
     "http-server": "^0.11.1",
     "qunit": "^2.8.0",
-    "rollup": "^1.0.0"
+    "rollup": "^1.0.0",
+    "rollup-plugin-terser": "^3.0.0",
+    "rollup-plugin-prettier": "^0.6.0"
   },
   "jspm": {
     "files": [
