@@ -22,6 +22,7 @@ and updated by `WebGLRenderer`
         - lambert
         - phong
         - standard
+        - **[r121+]** toon
     - added `ssaoMap` parameter declaration and detection to `WebGLPrograms`
     - added support for parameter `ssaoMap` to `WebGLProgram`'s auto define
     declarations
@@ -32,3 +33,4 @@ and updated by `WebGLRenderer`
         - `MeshLambertMaterial`
         - `MeshPhongMaterial`
         - `MeshStandardMaterial`
+        - **[r121+]** `MeshToonMaterial`

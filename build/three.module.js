@@ -18779,6 +18779,7 @@ const ShaderLib = {
 		uniforms: mergeUniforms( [
 			UniformsLib.common,
 			UniformsLib.aomap,
+			UniformsLib.ssaomap,
 			UniformsLib.lightmap,
 			UniformsLib.emissivemap,
 			UniformsLib.bumpmap,
@@ -38934,6 +38935,7 @@ function MeshToonMaterial( parameters ) {
 	this.lightMapIntensity = 1.0;
 
 	this.aoMap = null;
+	this.ssaoMap = null;
 	this.aoMapIntensity = 1.0;
 
 	this.emissive = new Color( 0x000000 );

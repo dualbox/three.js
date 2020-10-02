@@ -1,7 +1,7 @@
-import { Color } from './../math/Color';
-import { Texture } from './../textures/Texture';
-import { Vector2 } from './../math/Vector2';
-import { MaterialParameters, Material } from './Material';
+import { Color } from '../math/Color';
+import { Texture } from '../textures/Texture';
+import { Vector2 } from '../math/Vector2';
+import { Material, MaterialParameters } from './Material';
 import { NormalMapTypes } from '../constants';
 
 export interface MeshToonMaterialParameters extends MaterialParameters {
@@ -13,6 +13,7 @@ export interface MeshToonMaterialParameters extends MaterialParameters {
 	lightMap?: Texture | null;
 	lightMapIntensity?: number;
 	aoMap?: Texture | null;
+	ssaoMap?: Texture | null;
 	aoMapIntensity?: number;
 	emissive?: Color | string | number;
 	emissiveIntensity?: number;

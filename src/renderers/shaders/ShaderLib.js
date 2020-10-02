@@ -108,6 +108,7 @@ const ShaderLib = {
 		uniforms: mergeUniforms( [
 			UniformsLib.common,
 			UniformsLib.aomap,
+			UniformsLib.ssaomap,
 			UniformsLib.lightmap,
 			UniformsLib.emissivemap,
 			UniformsLib.bumpmap,

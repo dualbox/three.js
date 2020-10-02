@@ -10878,7 +10878,7 @@
 			fragmentShader: ShaderChunk.meshphysical_frag
 		},
 		toon: {
-			uniforms: mergeUniforms([UniformsLib.common, UniformsLib.aomap, UniformsLib.lightmap, UniformsLib.emissivemap, UniformsLib.bumpmap, UniformsLib.normalmap, UniformsLib.displacementmap, UniformsLib.gradientmap, UniformsLib.fog, UniformsLib.lights, {
+			uniforms: mergeUniforms([UniformsLib.common, UniformsLib.aomap, UniformsLib.ssaomap, UniformsLib.lightmap, UniformsLib.emissivemap, UniformsLib.bumpmap, UniformsLib.normalmap, UniformsLib.displacementmap, UniformsLib.gradientmap, UniformsLib.fog, UniformsLib.lights, {
 				emissive: {
 					value: new Color(0x000000)
 				}
@@ -25085,6 +25085,7 @@
 		this.lightMap = null;
 		this.lightMapIntensity = 1.0;
 		this.aoMap = null;
+		this.ssaoMap = null;
 		this.aoMapIntensity = 1.0;
 		this.emissive = new Color(0x000000);
 		this.emissiveIntensity = 1.0;
