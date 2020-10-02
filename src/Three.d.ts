@@ -117,6 +117,8 @@ export * from './math/Cylindrical';
 export * from './math/Plane';
 export * from './math/Frustum';
 export * from './math/Sphere';
+export * from './math/Cone';
+export * from './math/Cylinder';
 export * from './math/Ray';
 export * from './math/Matrix4';
 export * from './math/Matrix3';

@@ -3,6 +3,8 @@ import { Sphere } from './Sphere';
 import { Plane } from './Plane';
 import { Box3 } from './Box3';
 import { Matrix4 } from './Matrix4';
+import { Cone } from "./Cone";
+import { Cylinder } from './Cylinder';
 
 export class Ray {
 
@@ -47,7 +49,9 @@ export class Ray {
 		backfaceCulling: boolean,
 		target: Vector3
 	): Vector3 | null;
-	applyMatrix4( matrix4: Matrix4 ): Ray;
+	intersectCone( cone: Cone, target: Vector3 ): Vector3;
+  	intersectCylinder( cyl: Cylinder, target: Vector3 ): Vector3;
+  	applyMatrix4( matrix4: Matrix4 ): Ray;
 	equals( ray: Ray ): boolean;
 
 	/**
