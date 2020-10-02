@@ -3529,13 +3529,13 @@
 
 	var _target2 = /*@__PURE__*/new Vector3();
 
-	var _vtos = /*@__PURE__*/new THREE.Vector3();
+	var _vtos = /*@__PURE__*/new Vector3();
 
-	var _tmp = /*@__PURE__*/new THREE.Vector3();
+	var _tmp = /*@__PURE__*/new Vector3();
 
-	var _tmp1 = /*@__PURE__*/new THREE.Vector3();
+	var _tmp1 = /*@__PURE__*/new Vector3();
 
-	var _tmp2 = /*@__PURE__*/new THREE.Vector3();
+	var _tmp2 = /*@__PURE__*/new Vector3();
 
 	var Ray = /*#__PURE__*/function () {
 		function Ray(origin, direction) {

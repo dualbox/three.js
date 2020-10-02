@@ -12,10 +12,10 @@ const _normal = /*@__PURE__*/ new Vector3();
 const _E = /*@__PURE__*/ new Vector3();
 const _target2 = /*@__PURE__*/ new Vector3();
 
-const _vtos = /*@__PURE__*/ new THREE.Vector3();
-const _tmp = /*@__PURE__*/ new THREE.Vector3();
-const _tmp1 = /*@__PURE__*/ new THREE.Vector3();
-const _tmp2 = /*@__PURE__*/ new THREE.Vector3();
+const _vtos = /*@__PURE__*/ new Vector3();
+const _tmp = /*@__PURE__*/ new Vector3();
+const _tmp1 = /*@__PURE__*/ new Vector3();
+const _tmp2 = /*@__PURE__*/ new Vector3();
 
 class Ray {
 
