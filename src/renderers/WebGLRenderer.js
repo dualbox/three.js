@@ -1990,6 +1990,13 @@ function WebGLRenderer( parameters ) {
 
 		}
 
+		if ( material.ssaoMap ) {
+
+			uniforms.ssaoMap.value = material.ssaoMap;
+			uniforms.aoMapIntensity.value = material.aoMapIntensity;
+
+		}
+
 		// uv repeat and offset setting priorities
 		// 1. color map
 		// 2. specular map

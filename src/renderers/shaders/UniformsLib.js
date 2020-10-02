@@ -43,6 +43,13 @@ var UniformsLib = {
 
 	},
 
+	ssaomap: {
+
+		ssaoMap: { value: null },
+		aoMapIntensity: { value: 1 }
+
+	},
+
 	lightmap: {
 
 		lightMap: { value: null },

@@ -6029,9 +6029,9 @@ var alphamap_pars_fragment = "#ifdef USE_ALPHAMAP\n\tuniform sampler2D alphaMap;
 
 var alphatest_fragment = "#ifdef ALPHATEST\n\tif ( diffuseColor.a < ALPHATEST ) discard;\n#endif";
 
-var aomap_fragment = "#ifdef USE_AOMAP\n\tfloat ambientOcclusion = ( texture2D( aoMap, vUv2 ).r - 1.0 ) * aoMapIntensity + 1.0;\n\treflectedLight.indirectDiffuse *= ambientOcclusion;\n\t#if defined( USE_ENVMAP ) && defined( PHYSICAL )\n\t\tfloat dotNV = saturate( dot( geometry.normal, geometry.viewDir ) );\n\t\treflectedLight.indirectSpecular *= computeSpecularOcclusion( dotNV, ambientOcclusion, material.specularRoughness );\n\t#endif\n#endif";
+var aomap_fragment = "#if defined( USE_AOMAP ) || defined( USE_SSAOMAP )\n\t#ifdef USE_AOMAP\n\t\n\t\tfloat ambientOcclusion = ( texture2D( aoMap, vUv2 ).r - 1.0 ) * aoMapIntensity + 1.0;\n\t\t\n\t#else\n\t\n\t\tfloat ambientOcclusion = ( texture2D( ssaoMap, gl_FragCoord.xy / renderSize ).r - 1.0 ) * aoMapIntensity + 1.0;\n\t\n\t#endif\n\treflectedLight.indirectDiffuse *= ambientOcclusion;\n\t#if defined( USE_ENVMAP ) && defined( PHYSICAL )\n\t\tfloat dotNV = saturate( dot( geometry.normal, geometry.viewDir ) );\n\t\treflectedLight.indirectSpecular *= computeSpecularOcclusion( dotNV, ambientOcclusion, material.specularRoughness );\n\t#endif\n#endif";
 
-var aomap_pars_fragment = "#ifdef USE_AOMAP\n\tuniform sampler2D aoMap;\n\tuniform float aoMapIntensity;\n#endif";
+var aomap_pars_fragment = "#if defined( USE_AOMAP ) || defined( USE_SSAOMAP )\n\t#ifdef UISE_AOMAP\n\t\n\t\tuniform sampler2D aoMap;\n\t\t\n\t#else\n\t\n\t\tuniform sampler2D ssaoMap;\n\t\t\n\t#endif\n\t\n\tuniform float aoMapIntensity;\n#endif";
 
 var begin_vertex = "vec3 transformed = vec3( position );";
 
@@ -7092,6 +7092,13 @@ var UniformsLib = {
 
 	},
 
+	ssaomap: {
+
+		ssaoMap: { value: null },
+		aoMapIntensity: { value: 1 }
+
+	},
+
 	lightmap: {
 
 		lightMap: { value: null },
@@ -7261,6 +7268,7 @@ var ShaderLib = {
 			UniformsLib.specularmap,
 			UniformsLib.envmap,
 			UniformsLib.aomap,
+			UniformsLib.ssaomap,
 			UniformsLib.lightmap,
 			UniformsLib.fog
 		] ),
@@ -7277,6 +7285,7 @@ var ShaderLib = {
 			UniformsLib.specularmap,
 			UniformsLib.envmap,
 			UniformsLib.aomap,
+			UniformsLib.ssaomap,
 			UniformsLib.lightmap,
 			UniformsLib.emissivemap,
 			UniformsLib.fog,
@@ -7298,6 +7307,7 @@ var ShaderLib = {
 			UniformsLib.specularmap,
 			UniformsLib.envmap,
 			UniformsLib.aomap,
+			UniformsLib.ssaomap,
 			UniformsLib.lightmap,
 			UniformsLib.emissivemap,
 			UniformsLib.bumpmap,
@@ -7324,6 +7334,7 @@ var ShaderLib = {
 			UniformsLib.common,
 			UniformsLib.envmap,
 			UniformsLib.aomap,
+			UniformsLib.ssaomap,
 			UniformsLib.lightmap,
 			UniformsLib.emissivemap,
 			UniformsLib.bumpmap,
@@ -17347,6 +17358,7 @@ function WebGLProgram( renderer, extensions, code, material, shader, parameters,
 			parameters.envMap ? '#define ' + envMapModeDefine : '',
 			parameters.lightMap ? '#define USE_LIGHTMAP' : '',
 			parameters.aoMap ? '#define USE_AOMAP' : '',
+			parameters.ssaoMap ? '#define USE_SSAOMAP' : '',
 			parameters.emissiveMap ? '#define USE_EMISSIVEMAP' : '',
 			parameters.bumpMap ? '#define USE_BUMPMAP' : '',
 			parameters.normalMap ? '#define USE_NORMALMAP' : '',
@@ -17455,6 +17467,7 @@ function WebGLProgram( renderer, extensions, code, material, shader, parameters,
 			parameters.envMap ? '#define ' + envMapBlendingDefine : '',
 			parameters.lightMap ? '#define USE_LIGHTMAP' : '',
 			parameters.aoMap ? '#define USE_AOMAP' : '',
+			parameters.ssaoMap ? '#define USE_SSAOMAP' : '',
 			parameters.emissiveMap ? '#define USE_EMISSIVEMAP' : '',
 			parameters.bumpMap ? '#define USE_BUMPMAP' : '',
 			parameters.normalMap ? '#define USE_NORMALMAP' : '',
@@ -17758,7 +17771,7 @@ function WebGLPrograms( renderer, extensions, capabilities ) {
 
 	var parameterNames = [
 		"precision", "supportsVertexTextures", "map", "mapEncoding", "matcap", "matcapEncoding", "envMap", "envMapMode", "envMapEncoding",
-		"lightMap", "aoMap", "emissiveMap", "emissiveMapEncoding", "bumpMap", "normalMap", "objectSpaceNormalMap", "displacementMap", "specularMap",
+		"lightMap", "aoMap", "ssaoMap", "emissiveMap", "emissiveMapEncoding", "bumpMap", "normalMap", "objectSpaceNormalMap", "displacementMap", "specularMap",
 		"roughnessMap", "metalnessMap", "gradientMap",
 		"alphaMap", "combine", "vertexColors", "fog", "useFog", "fogExp",
 		"flatShading", "sizeAttenuation", "logarithmicDepthBuffer", "skinning",
@@ -17877,6 +17890,7 @@ function WebGLPrograms( renderer, extensions, capabilities ) {
 			envMapCubeUV: ( !! material.envMap ) && ( ( material.envMap.mapping === CubeUVReflectionMapping ) || ( material.envMap.mapping === CubeUVRefractionMapping ) ),
 			lightMap: !! material.lightMap,
 			aoMap: !! material.aoMap,
+			ssaoMap: !! material.ssaoMap,
 			emissiveMap: !! material.emissiveMap,
 			emissiveMapEncoding: getTextureEncodingFromMap( material.emissiveMap, renderer.gammaInput ),
 			bumpMap: !! material.bumpMap,
@@ -24567,6 +24581,13 @@ function WebGLRenderer( parameters ) {
 		if ( material.aoMap ) {
 
 			uniforms.aoMap.value = material.aoMap;
+			uniforms.aoMapIntensity.value = material.aoMapIntensity;
+
+		}
+
+		if ( material.ssaoMap ) {
+
+			uniforms.ssaoMap.value = material.ssaoMap;
 			uniforms.aoMapIntensity.value = material.aoMapIntensity;
 
 		}
