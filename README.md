@@ -27,3 +27,8 @@ and updated by `WebGLRenderer`
     declarations
     - added material detection of an `ssaoMap` parameter to pass down the 
     render pipeline in `WebGLRenderer` **[r101]** 
+    - added `ssaoMap` parameter to:
+        - `MeshBasicMaterial`
+        - `MeshLambertMaterial`
+        - `MeshPhongMaterial`
+        - `MeshStandardMaterial`

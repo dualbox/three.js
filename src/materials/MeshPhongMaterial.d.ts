@@ -14,6 +14,7 @@ export interface MeshPhongMaterialParameters extends MaterialParameters {
   lightMap?: Texture;
   lightMapIntensity?: number;
   aoMap?: Texture;
+  ssaoMap?: Texture;
   aoMapIntensity?: number;
   emissive?: Color | string | number;
   emissiveIntensity?: number;

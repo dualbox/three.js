@@ -14453,6 +14453,7 @@
 		this.lightMapIntensity = 1.0;
 
 		this.aoMap = null;
+		this.ssaoMap = null;
 		this.aoMapIntensity = 1.0;
 
 		this.specularMap = null;
@@ -31743,6 +31744,7 @@
 		this.lightMapIntensity = 1.0;
 
 		this.aoMap = null;
+		this.ssaoMap = null;
 		this.aoMapIntensity = 1.0;
 
 		this.emissive = new Color( 0x000000 );
@@ -31960,6 +31962,7 @@
 		this.lightMapIntensity = 1.0;
 
 		this.aoMap = null;
+		this.ssaoMap = null;
 		this.aoMapIntensity = 1.0;
 
 		this.emissive = new Color( 0x000000 );
@@ -32235,6 +32238,7 @@
 		this.lightMapIntensity = 1.0;
 
 		this.aoMap = null;
+		this.ssaoMap = null;
 		this.aoMapIntensity = 1.0;
 
 		this.emissive = new Color( 0x000000 );
