@@ -42,6 +42,7 @@ import { WebGLUniforms } from './webgl/WebGLUniforms.js';
 import { WebGLUtils } from './webgl/WebGLUtils.js';
 import { WebVRManager } from './webvr/WebVRManager.js';
 import { WebXRManager } from './webvr/WebXRManager.js';
+import { Vector2 } from "../math/Vector2";
 
 /**
  * @author supereggbert / http://www.paulbrunt.co.uk/
@@ -71,6 +72,8 @@ function WebGLRenderer( parameters ) {
 
 	var currentRenderList = null;
 	var currentRenderState = null;
+
+	var _resolution = new Vector2();
 
 	// public properties
 
@@ -1910,6 +1913,12 @@ function WebGLRenderer( parameters ) {
 		p_uniforms.setValue( _gl, 'normalMatrix', object.normalMatrix );
 		p_uniforms.setValue( _gl, 'modelMatrix', object.matrixWorld );
 
+		if ( _currentRenderTarget )
+			_resolution.set( _currentRenderTarget.width, _currentRenderTarget.height );
+		else
+			_resolution.set( _width, _height );
+		p_uniforms.setValue( _gl, 'renderSize', _resolution );
+
 		return program;
 
 	}
@@ -1977,6 +1986,13 @@ function WebGLRenderer( parameters ) {
 		if ( material.aoMap ) {
 
 			uniforms.aoMap.value = material.aoMap;
+			uniforms.aoMapIntensity.value = material.aoMapIntensity;
+
+		}
+
+		if ( material.ssaoMap ) {
+
+			uniforms.ssaoMap.value = material.ssaoMap;
 			uniforms.aoMapIntensity.value = material.aoMapIntensity;
 
 		}
