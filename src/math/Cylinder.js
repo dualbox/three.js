@@ -7,7 +7,7 @@ import { Vector3 } from "./Vector3";
  *  @param {number} sup The maximum distance from v in the axis direction (truncated cylinder). If null or undefined, will be +infinity
  *  @param {number} inf The minimum distance from v in the axis direction (truncated cylinder). if null or undefined, will be 0
  */
-function Cylinder( v, axis, radius, inf, sup ) {
+export function Cylinder( v, axis, radius, inf, sup ) {
 
 	this.v = v || new Vector3();
 	this.axis = axis || new Vector3( 1, 0, 0 );
