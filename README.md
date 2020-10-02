@@ -11,3 +11,5 @@ and added to `Three.js` and `Three.d.ts`
 - Added functions `intersectCone` and `intersectCylinder` to `Ray`
 - Added extra base uniforms (`viewMatrixInverse` and `projectionMatrixInverse`), that will automatically be attributed by 
 `WebGLRenderer`
+- Added `renderSize` uniform to fragment shaders, declared in `WebGLProgram.js`
+and updated by `WebGLRenderer`

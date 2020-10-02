@@ -17492,6 +17492,7 @@
 
 				'uniform mat4 viewMatrix;',
 				'uniform vec3 cameraPosition;',
+				'uniform vec2 renderSize;',
 
 				( parameters.toneMapping !== NoToneMapping ) ? '#define TONE_MAPPING' : '',
 				( parameters.toneMapping !== NoToneMapping ) ? ShaderChunk[ 'tonemapping_pars_fragment' ] : '', // this code is required here because it is used by the toneMapping() function defined below
@@ -22659,6 +22660,8 @@
 		var currentRenderList = null;
 		var currentRenderState = null;
 
+		var _resolution = new Vector2();
+
 		// public properties
 
 		this.domElement = _canvas;
@@ -24496,6 +24499,12 @@
 			p_uniforms.setValue( _gl, 'modelViewMatrix', object.modelViewMatrix );
 			p_uniforms.setValue( _gl, 'normalMatrix', object.normalMatrix );
 			p_uniforms.setValue( _gl, 'modelMatrix', object.matrixWorld );
+
+			if ( _currentRenderTarget )
+				_resolution.set( _currentRenderTarget.width, _currentRenderTarget.height );
+			else
+				_resolution.set( _width, _height );
+			p_uniforms.setValue( _gl, 'renderSize', _resolution );
 
 			return program;
 
