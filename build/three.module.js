@@ -9115,6 +9115,7 @@ function MeshBasicMaterial( parameters ) {
 	this.lightMapIntensity = 1.0;
 
 	this.aoMap = null;
+	this.ssaoMap = null;
 	this.aoMapIntensity = 1.0;
 
 	this.specularMap = null;
@@ -13176,10 +13177,18 @@ var alphatest_fragment = /* glsl */`
 `;
 
 var aomap_fragment = /* glsl */`
-#ifdef USE_AOMAP
+#if defined( USE_AOMAP ) || defined( USE_SSAOMAP )
 
 	// reads channel R, compatible with a combined OcclusionRoughnessMetallic (RGB) texture
-	float ambientOcclusion = ( texture2D( aoMap, vUv2 ).r - 1.0 ) * aoMapIntensity + 1.0;
+	#ifdef USE_AOMAP
+	
+		float ambientOcclusion = ( texture2D( aoMap, vUv2 ).r - 1.0 ) * aoMapIntensity + 1.0;
+		
+	#else
+	
+		float ambientOcclusion = ( texture2D( ssaoMap, gl_FragCoord.xy / renderSize ).r - 1.0 ) * aoMapIntensity + 1.0;
+	
+	#endif
 
 	reflectedLight.indirectDiffuse *= ambientOcclusion;
 
@@ -13195,9 +13204,18 @@ var aomap_fragment = /* glsl */`
 `;
 
 var aomap_pars_fragment = /* glsl */`
-#ifdef USE_AOMAP
+#if defined( USE_AOMAP ) || defined( USE_SSAOMAP )
 
-	uniform sampler2D aoMap;
+	#ifdef UISE_AOMAP
+	
+		uniform sampler2D aoMap;
+		
+	#else
+	
+		uniform sampler2D ssaoMap;
+		
+	#endif
+	
 	uniform float aoMapIntensity;
 
 #endif
@@ -18485,6 +18503,13 @@ const UniformsLib = {
 
 	},
 
+	ssaomap: {
+
+		ssaoMap: { value: null },
+		aoMapIntensity: { value: 1 }
+
+	},
+
 	lightmap: {
 
 		lightMap: { value: null },
@@ -18661,6 +18686,7 @@ const ShaderLib = {
 			UniformsLib.specularmap,
 			UniformsLib.envmap,
 			UniformsLib.aomap,
+			UniformsLib.ssaomap,
 			UniformsLib.lightmap,
 			UniformsLib.fog
 		] ),
@@ -18677,6 +18703,7 @@ const ShaderLib = {
 			UniformsLib.specularmap,
 			UniformsLib.envmap,
 			UniformsLib.aomap,
+			UniformsLib.ssaomap,
 			UniformsLib.lightmap,
 			UniformsLib.emissivemap,
 			UniformsLib.fog,
@@ -18698,6 +18725,7 @@ const ShaderLib = {
 			UniformsLib.specularmap,
 			UniformsLib.envmap,
 			UniformsLib.aomap,
+			UniformsLib.ssaomap,
 			UniformsLib.lightmap,
 			UniformsLib.emissivemap,
 			UniformsLib.bumpmap,
@@ -18723,6 +18751,7 @@ const ShaderLib = {
 			UniformsLib.common,
 			UniformsLib.envmap,
 			UniformsLib.aomap,
+			UniformsLib.ssaomap,
 			UniformsLib.lightmap,
 			UniformsLib.emissivemap,
 			UniformsLib.bumpmap,
@@ -22192,6 +22221,7 @@ function WebGLProgram( renderer, cacheKey, parameters, bindingStates ) {
 			parameters.envMap ? '#define ' + envMapModeDefine : '',
 			parameters.lightMap ? '#define USE_LIGHTMAP' : '',
 			parameters.aoMap ? '#define USE_AOMAP' : '',
+			parameters.ssaoMap ? '#define USE_SSAOMAP' : '',
 			parameters.emissiveMap ? '#define USE_EMISSIVEMAP' : '',
 			parameters.bumpMap ? '#define USE_BUMPMAP' : '',
 			parameters.normalMap ? '#define USE_NORMALMAP' : '',
@@ -22328,6 +22358,7 @@ function WebGLProgram( renderer, cacheKey, parameters, bindingStates ) {
 			parameters.envMap ? '#define ' + envMapBlendingDefine : '',
 			parameters.lightMap ? '#define USE_LIGHTMAP' : '',
 			parameters.aoMap ? '#define USE_AOMAP' : '',
+			parameters.ssaoMap ? '#define USE_SSAOMAP' : '',
 			parameters.emissiveMap ? '#define USE_EMISSIVEMAP' : '',
 			parameters.bumpMap ? '#define USE_BUMPMAP' : '',
 			parameters.normalMap ? '#define USE_NORMALMAP' : '',
@@ -22371,6 +22402,7 @@ function WebGLProgram( renderer, cacheKey, parameters, bindingStates ) {
 			'uniform mat4 viewMatrix;',
 			'uniform vec3 cameraPosition;',
 			'uniform bool isOrthographic;',
+			'uniform vec2 renderSize;',
 
 			( parameters.toneMapping !== NoToneMapping ) ? '#define TONE_MAPPING' : '',
 			( parameters.toneMapping !== NoToneMapping ) ? ShaderChunk[ 'tonemapping_pars_fragment' ] : '', // this code is required here because it is used by the toneMapping() function defined below
@@ -22618,7 +22650,7 @@ function WebGLPrograms( renderer, cubemaps, extensions, capabilities, bindingSta
 	const parameterNames = [
 		"precision", "isWebGL2", "supportsVertexTextures", "outputEncoding", "instancing", "instancingColor",
 		"map", "mapEncoding", "matcap", "matcapEncoding", "envMap", "envMapMode", "envMapEncoding", "envMapCubeUV",
-		"lightMap", "lightMapEncoding", "aoMap", "emissiveMap", "emissiveMapEncoding", "bumpMap", "normalMap", "objectSpaceNormalMap", "tangentSpaceNormalMap", "clearcoatMap", "clearcoatRoughnessMap", "clearcoatNormalMap", "displacementMap", "specularMap",
+		"lightMap", "lightMapEncoding", "aoMap", "ssaoMap", "emissiveMap", "emissiveMapEncoding", "bumpMap", "normalMap", "objectSpaceNormalMap", "tangentSpaceNormalMap", "clearcoatMap", "clearcoatRoughnessMap", "clearcoatNormalMap", "displacementMap", "specularMap",
 		"roughnessMap", "metalnessMap", "gradientMap",
 		"alphaMap", "combine", "vertexColors", "vertexTangents", "vertexUvs", "uvsVertexOnly", "fog", "useFog", "fogExp2",
 		"flatShading", "sizeAttenuation", "logarithmicDepthBuffer", "skinning",
@@ -22766,6 +22798,7 @@ function WebGLPrograms( renderer, cubemaps, extensions, capabilities, bindingSta
 			lightMap: !! material.lightMap,
 			lightMapEncoding: getTextureEncodingFromMap( material.lightMap ),
 			aoMap: !! material.aoMap,
+			ssaoMap: !! material.ssaoMap,
 			emissiveMap: !! material.emissiveMap,
 			emissiveMapEncoding: getTextureEncodingFromMap( material.emissiveMap ),
 			bumpMap: !! material.bumpMap,
@@ -27766,6 +27799,13 @@ function WebGLMaterials( properties ) {
 
 		}
 
+		if ( material.ssaoMap ) {
+
+			uniforms.ssaoMap.value = material.ssaoMap;
+			uniforms.aoMapIntensity.value = material.aoMapIntensity;
+
+		}
+
 		// uv repeat and offset setting priorities
 		// 1. color map
 		// 2. specular map
@@ -28305,6 +28345,8 @@ function WebGLRenderer( parameters ) {
 
 	let currentRenderList = null;
 	let currentRenderState = null;
+
+	var _resolution = new Vector2();
 
 	// public properties
 
@@ -29943,6 +29985,12 @@ function WebGLRenderer( parameters ) {
 		p_uniforms.setValue( _gl, 'modelViewMatrix', object.modelViewMatrix );
 		p_uniforms.setValue( _gl, 'normalMatrix', object.normalMatrix );
 		p_uniforms.setValue( _gl, 'modelMatrix', object.matrixWorld );
+
+		if ( _currentRenderTarget )
+			_resolution.set( _currentRenderTarget.width, _currentRenderTarget.height );
+		else
+			_resolution.set( _width, _height );
+		p_uniforms.setValue( _gl, 'renderSize', _resolution );
 
 		return program;
 
@@ -38455,6 +38503,7 @@ function MeshStandardMaterial( parameters ) {
 	this.lightMapIntensity = 1.0;
 
 	this.aoMap = null;
+	this.ssaoMap = null;
 	this.aoMapIntensity = 1.0;
 
 	this.emissive = new Color( 0x000000 );
@@ -38731,6 +38780,7 @@ function MeshPhongMaterial( parameters ) {
 	this.lightMapIntensity = 1.0;
 
 	this.aoMap = null;
+	this.ssaoMap = null;
 	this.aoMapIntensity = 1.0;
 
 	this.emissive = new Color( 0x000000 );
@@ -39100,6 +39150,7 @@ function MeshLambertMaterial( parameters ) {
 	this.lightMapIntensity = 1.0;
 
 	this.aoMap = null;
+	this.ssaoMap = null;
 	this.aoMapIntensity = 1.0;
 
 	this.emissive = new Color( 0x000000 );

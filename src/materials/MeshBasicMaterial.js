@@ -48,6 +48,7 @@ function MeshBasicMaterial( parameters ) {
 	this.lightMapIntensity = 1.0;
 
 	this.aoMap = null;
+	this.ssaoMap = null;
 	this.aoMapIntensity = 1.0;
 
 	this.specularMap = null;

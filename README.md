@@ -11,3 +11,24 @@ and added to `Three.js` and `Three.d.ts`
 - Added functions `intersectCone` and `intersectCylinder` to `Ray`
 - Added extra base uniforms (`viewMatrixInverse` and `projectionMatrixInverse`), that will automatically be attributed by 
 `WebGLRenderer`
+- Added `renderSize` uniform to fragment shaders, declared in `WebGLProgram.js`
+and updated by `WebGLRenderer`
+- ssaoMap material suport:
+    - Edited `aomap_fragment.glsl.js` and `aomap_pars_fragment.glsl.js` shaders 
+    to support the use of ssaoMap.
+    - recorded ssaoMap to `UniformsLib`
+    - added ssaoMap uniforms in `Shader lib to :
+        - basic
+        - lambert
+        - phong
+        - standard
+    - added `ssaoMap` parameter declaration and detection to `WebGLPrograms`
+    - added support for parameter `ssaoMap` to `WebGLProgram`'s auto define
+    declarations
+    - added material detection of an `ssaoMap` parameter to pass down the 
+    render pipeline in `WebGLRenderer` **[r101]** / `WebGLMaterials` **[r121+]**
+    - added `ssaoMap` parameter to:
+        - `MeshBasicMaterial`
+        - `MeshLambertMaterial`
+        - `MeshPhongMaterial`
+        - `MeshStandardMaterial`

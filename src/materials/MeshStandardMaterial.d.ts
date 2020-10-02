@@ -12,6 +12,7 @@ export interface MeshStandardMaterialParameters extends MaterialParameters {
 	lightMap?: Texture | null;
 	lightMapIntensity?: number;
 	aoMap?: Texture | null;
+	ssaoMap?: Texture | null;
 	aoMapIntensity?: number;
 	emissive?: Color | string | number;
 	emissiveIntensity?: number;

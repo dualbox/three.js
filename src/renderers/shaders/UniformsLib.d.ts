@@ -25,6 +25,10 @@ export let UniformsLib: {
 		aoMap: IUniform;
 		aoMapIntensity: IUniform;
 	};
+	ssaomap: {
+		ssaoMap: IUniform;
+		aoMapIntensity: IUniform;
+	};
 	lightmap: {
 		lightMap: IUniform;
 		lightMapIntensity: IUniform;

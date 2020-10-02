@@ -10,6 +10,7 @@ export interface MeshBasicMaterialParameters extends MaterialParameters {
 	opacity?: number;
 	map?: Texture | null;
 	aoMap?: Texture | null;
+	ssaoMap?: Texture | null;
 	aoMapIntensity?: number;
 	specularMap?: Texture | null;
 	alphaMap?: Texture | null;

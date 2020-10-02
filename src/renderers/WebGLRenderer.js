@@ -58,6 +58,8 @@ function WebGLRenderer( parameters ) {
 	let currentRenderList = null;
 	let currentRenderState = null;
 
+	var _resolution = new Vector2();
+
 	// public properties
 
 	this.domElement = _canvas;
@@ -1695,6 +1697,12 @@ function WebGLRenderer( parameters ) {
 		p_uniforms.setValue( _gl, 'modelViewMatrix', object.modelViewMatrix );
 		p_uniforms.setValue( _gl, 'normalMatrix', object.normalMatrix );
 		p_uniforms.setValue( _gl, 'modelMatrix', object.matrixWorld );
+
+		if ( _currentRenderTarget )
+			_resolution.set( _currentRenderTarget.width, _currentRenderTarget.height );
+		else
+			_resolution.set( _width, _height );
+		p_uniforms.setValue( _gl, 'renderSize', _resolution );
 
 		return program;
 

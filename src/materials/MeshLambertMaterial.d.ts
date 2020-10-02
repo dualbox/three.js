@@ -12,6 +12,7 @@ export interface MeshLambertMaterialParameters extends MaterialParameters {
 	lightMap?: Texture | null;
 	lightMapIntensity?: number;
 	aoMap?: Texture | null;
+	ssaoMap?: Texture | null;
 	aoMapIntensity?: number;
 	specularMap?: Texture | null;
 	alphaMap?: Texture | null;
