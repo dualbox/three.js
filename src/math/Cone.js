@@ -11,7 +11,7 @@ export function Cone( v, axis, theta, inf, sup ) {
 
 	this.v = v || new Vector3();
 	this.axis = axis || new Vector3( 1, 0, 0 );
-	this.theta = theta;
+	this.theta = theta || 0;
 	this.inf = inf || 0;
 	this.sup = sup || + Infinity;
 
