@@ -13955,10 +13955,10 @@
 		intersectCylinder: function () {
 
 			// function static variables
-			var vtos = new THREE.Vector3();
-			var tmp = new THREE.Vector3();
-			var tmp1 = new THREE.Vector3();
-			var tmp2 = new THREE.Vector3();
+			var vtos = new Vector3();
+			var tmp = new Vector3();
+			var tmp1 = new Vector3();
+			var tmp2 = new Vector3();
 
 			return function ( cyl, target ) {
 
