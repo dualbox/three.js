@@ -9,3 +9,5 @@ and added to `Three.js` and `Three.d.ts`
 - Implemented a `Cylinder` math object, declared in `math/Cylinder.js` and 
 `math/Cylinder.d.ts`, and added to `Three.js` and `Three.d.ts`
 - Added functions `intersectCone` and `intersectCylinder` to `Ray`
+- Added extra base uniforms (`viewMatrixInverse` and `projectionMatrixInverse`), that will automatically be attributed by 
+`WebGLRenderer`

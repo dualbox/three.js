@@ -29515,6 +29515,16 @@ function WebGLRenderer( parameters ) {
 
 	function renderObject( object, scene, camera, geometry, material, group ) {
 
+		if ( material && material.uniforms ) {
+
+			if ( material.uniforms.viewMatrixInverse )
+				material.uniforms.viewMatrixInverse.value.copy( camera.matrixWorld );
+
+			if ( material.uniforms.projectionMatrixInverse )
+				material.uniforms.projectionMatrixInverse.value.getInverse( camera.projectionMatrix );
+
+		}
+
 		object.onBeforeRender( _this, scene, camera, geometry, material, group );
 		currentRenderState = renderStates.get( scene, _currentArrayCamera || camera );
 
