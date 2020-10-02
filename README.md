@@ -6,4 +6,6 @@ three.js (fork)
 with depth on iOS. Achieved by passing down `varying vec2 vHighPrecisionZW;`
 - Implemented a `Cone` math object, declared in `math/Cone.js` and `math/Cone.d.ts`,
 and added to `Three.js` and `Three.d.ts`
-- Added function `intersectCone` to `Ray`
+- Implemented a `Cylinder` math object, declared in `math/Cylinder.js` and 
+`math/Cylinder.d.ts`, and added to `Three.js` and `Three.d.ts`
+- Added functions `intersectCone` and `intersectCylinder` to `Ray`
