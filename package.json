@@ -1,5 +1,5 @@
 {
-  "name": "three",
+  "name": "@dualbox/three",
   "version": "1.122.0",
   "description": "JavaScript 3D library",
   "main": "build/three.js",
@@ -7,7 +7,7 @@
   "types": "src/Three.d.ts",
   "repository": {
     "type": "git",
-    "url": "https://github.com/mrdoob/three.js"
+    "url": "https://github.com/dualbox/three.js"
   },
   "files": [
     "build/three.js",
@@ -86,7 +86,7 @@
   "author": "mrdoob",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/mrdoob/three.js/issues"
+    "url": "https://github.com/dualbox/three.js/issues"
   },
   "homepage": "https://threejs.org/",
   "devDependencies": {
@@ -115,5 +115,8 @@
       "build/three.module.js"
     ],
     "directories": {}
+  },
+  "publishConfig": {
+    "registry":"https://npm.pkg.github.com"
   }
 }
