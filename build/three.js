@@ -20442,7 +20442,7 @@
 
 			}
 
-			if ( internalFormat === 33325 || internalFormat === 33326 ||
+			if ( internalFormat === 33325 || internalFormat === 33326 ||
 				internalFormat === 34842 || internalFormat === 34836 ) {
 
 				extensions.get( 'EXT_color_buffer_float' );
