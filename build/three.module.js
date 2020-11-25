@@ -13194,23 +13194,7 @@ var aomap_fragment = /* glsl */`
 #endif
 `;
 
-var aomap_pars_fragment = /* glsl */`
-#if defined( USE_AOMAP ) || defined( USE_SSAOMAP )
-
-	#ifdef UISE_AOMAP
-	
-		uniform sampler2D aoMap;
-		
-	#else
-	
-		uniform sampler2D ssaoMap;
-		
-	#endif
-	
-	uniform float aoMapIntensity;
-
-#endif
-`;
+var aomap_pars_fragment = "#if defined( USE_AOMAP ) || defined( USE_SSAOMAP )\n\t#ifdef USE_AOMAP\n\t\tuniform sampler2D aoMap;\n\t#else\n\t\tuniform sampler2D ssaoMap;\n\t#endif\n\tuniform float aoMapIntensity;\n#endif";
 
 var begin_vertex = /* glsl */`
 vec3 transformed = vec3( position );

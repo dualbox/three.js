@@ -1,6 +1,6 @@
 {
   "name": "@dualbox/three",
-  "version": "1.122.0",
+  "version": "1.122.1",
   "description": "JavaScript 3D library",
   "main": "build/three.js",
   "module": "build/three.module.js",
@@ -117,6 +117,6 @@
     "directories": {}
   },
   "publishConfig": {
-    "registry":"https://npm.pkg.github.com"
+    "registry": "https://npm.pkg.github.com"
   }
 }

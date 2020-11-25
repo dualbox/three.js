@@ -10119,8 +10119,7 @@
 	var aomap_fragment = /* glsl */
 	"\n#if defined( USE_AOMAP ) || defined( USE_SSAOMAP )\n\n\t// reads channel R, compatible with a combined OcclusionRoughnessMetallic (RGB) texture\n\t#ifdef USE_AOMAP\n\t\n\t\tfloat ambientOcclusion = ( texture2D( aoMap, vUv2 ).r - 1.0 ) * aoMapIntensity + 1.0;\n\t\t\n\t#else\n\t\n\t\tfloat ambientOcclusion = ( texture2D( ssaoMap, gl_FragCoord.xy / renderSize ).r - 1.0 ) * aoMapIntensity + 1.0;\n\t\n\t#endif\n\n\treflectedLight.indirectDiffuse *= ambientOcclusion;\n\n\t#if defined( USE_ENVMAP ) && defined( STANDARD )\n\n\t\tfloat dotNV = saturate( dot( geometry.normal, geometry.viewDir ) );\n\n\t\treflectedLight.indirectSpecular *= computeSpecularOcclusion( dotNV, ambientOcclusion, material.specularRoughness );\n\n\t#endif\n\n#endif\n";
 
-	var aomap_pars_fragment = /* glsl */
-	"\n#if defined( USE_AOMAP ) || defined( USE_SSAOMAP )\n\n\t#ifdef UISE_AOMAP\n\t\n\t\tuniform sampler2D aoMap;\n\t\t\n\t#else\n\t\n\t\tuniform sampler2D ssaoMap;\n\t\t\n\t#endif\n\t\n\tuniform float aoMapIntensity;\n\n#endif\n";
+	var aomap_pars_fragment = "#if defined( USE_AOMAP ) || defined( USE_SSAOMAP )\n\t#ifdef USE_AOMAP\n\t\tuniform sampler2D aoMap;\n\t#else\n\t\tuniform sampler2D ssaoMap;\n\t#endif\n\tuniform float aoMapIntensity;\n#endif";
 
 	var begin_vertex = /* glsl */
 	"\nvec3 transformed = vec3( position );\n";
