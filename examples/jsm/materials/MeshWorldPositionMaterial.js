@@ -61,6 +61,9 @@ export function MeshWorldPositionMaterial( parameters ) {
 	this.skinning = false;
 	this.morphTargets = false;
 
+	this.isMeshDepthMaterial = true;
+	this.isMeshWorldPositionMaterial = true;
+
 	ShaderMaterial.call( this, parameters );
 
 }

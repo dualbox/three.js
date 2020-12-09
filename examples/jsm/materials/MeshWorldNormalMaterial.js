@@ -56,6 +56,7 @@ export function MeshWorldNormalMaterial( parameters ) {
 	this.morphTargets = false;
 	this.morphNormals = false;
 
+	this.isMeshNormalMaterial = true;
 	this.isMeshWorldNormalMaterial = true;
 
 	ShaderMaterial.call( this, parameters );
