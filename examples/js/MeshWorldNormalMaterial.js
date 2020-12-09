@@ -47,6 +47,7 @@ THREE.MeshWorldNormalMaterial = function ( parameters ) {
 	this.morphTargets = false;
 	this.morphNormals = false;
 
+	this.isMeshNormalMaterial = true;
 	this.isMeshWorldNormalMaterial = true;
 
 	THREE.ShaderMaterial.call( this, parameters );
