@@ -1,6 +1,6 @@
 {
   "name": "@dualbox/three",
-  "version": "1.101.3",
+  "version": "1.101.4",
   "description": "JavaScript 3D library",
   "main": "build/three.js",
   "repository": {
