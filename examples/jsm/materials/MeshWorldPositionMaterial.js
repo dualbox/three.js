@@ -9,7 +9,7 @@ export function MeshWorldPositionMaterial( parameters ) {
 	parameters = parameters || {};
 
 	parameters.uniforms = UniformsUtils.merge( [
-		ShaderLib.displacementmap
+		ShaderLib.depth.uniforms
 	] );
 	parameters.vertexShader = [
 
