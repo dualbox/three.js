@@ -3,6 +3,7 @@ import { Texture } from '../textures/Texture';
 import { Vector2 } from '../math/Vector2';
 import { Material, MaterialParameters } from './Material';
 import { NormalMapTypes } from '../constants';
+import { Matrix4 } from "../math/Matrix4";
 
 export interface MeshToonMaterialParameters extends MaterialParameters {
 	/** geometry color in hexadecimal. Default is 0xffffff. */
@@ -14,6 +15,7 @@ export interface MeshToonMaterialParameters extends MaterialParameters {
 	lightMapIntensity?: number;
 	aoMap?: Texture | null;
 	ssaoMap?: Texture | null;
+	ssaoMapMatrix?: Matrix4 | null;
 	aoMapIntensity?: number;
 	emissive?: Color | string | number;
 	emissiveIntensity?: number;

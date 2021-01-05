@@ -9097,6 +9097,7 @@ function MeshBasicMaterial( parameters ) {
 
 	this.aoMap = null;
 	this.ssaoMap = null;
+	this.ssaoMapMatrix = null;
 	this.aoMapIntensity = 1.0;
 
 	this.specularMap = null;
@@ -13167,34 +13168,22 @@ var alphatest_fragment = /* glsl */`
 #endif
 `;
 
-var aomap_fragment = /* glsl */`
-#if defined( USE_AOMAP ) || defined( USE_SSAOMAP )
+var aomap_fragment = "#if defined( USE_AOMAP ) || defined( USE_SSAOMAP )\n\t#ifdef USE_AOMAP\n\t\tfloat ambientOcclusion = ( texture2D( aoMap, vUv2 ).r - 1.0 ) * aoMapIntensity + 1.0;\n\t#else\n\t\t#ifndef USE_SSAOMAPMATRIX\n\t\t\tvec2 vAoCoords = gl_FragCoord.xy / renderSize;\n\t\t#endif\n\t\tfloat ambientOcclusion = ( texture2D( ssaoMap, vAoCoords ).r - 1.0 ) * aoMapIntensity + 1.0;\n\t#endif\n\treflectedLight.indirectDiffuse *= ambientOcclusion;\n\t#if defined( USE_ENVMAP ) && defined( STANDARD )\n\t\tfloat dotNV = saturate( dot( geometry.normal, geometry.viewDir ) );\n\t\treflectedLight.indirectSpecular *= computeSpecularOcclusion( dotNV, ambientOcclusion, material.specularRoughness );\n\t#endif\n#endif";
 
-	// reads channel R, compatible with a combined OcclusionRoughnessMetallic (RGB) texture
-	#ifdef USE_AOMAP
-	
-		float ambientOcclusion = ( texture2D( aoMap, vUv2 ).r - 1.0 ) * aoMapIntensity + 1.0;
-		
-	#else
-	
-		float ambientOcclusion = ( texture2D( ssaoMap, gl_FragCoord.xy / renderSize ).r - 1.0 ) * aoMapIntensity + 1.0;
-	
-	#endif
+var aomap_pars_fragment = "#if defined( USE_AOMAP ) || defined( USE_SSAOMAP )\n\t#ifdef USE_AOMAP\n\t\tuniform sampler2D aoMap;\n\t#else\n\t\tuniform sampler2D ssaoMap;\n\t\t#ifdef USE_SSAOMAPMATRIX\n\t\t\tvarying vec2 vAoCoords;\n\t\t#endif\n\t#endif\n\tuniform float aoMapIntensity;\n#endif";
 
-	reflectedLight.indirectDiffuse *= ambientOcclusion;
+var aomap_vertex = /* glsl */ `
 
-	#if defined( USE_ENVMAP ) && defined( STANDARD )
+#if defined( USE_SSAOMAP ) && defined(USE_SSAOMAPMATRIX )
 
-		float dotNV = saturate( dot( geometry.normal, geometry.viewDir ) );
-
-		reflectedLight.indirectSpecular *= computeSpecularOcclusion( dotNV, ambientOcclusion, material.specularRoughness );
-
-	#endif
+	vec4 ssaoCoords = ssaoMapMatrix * modelMatrix * vec4(transformed, 1.0);
+	vAoCoords = (ssaoCoords.xy / ssaoCoords.w) * 0.5 + 0.5;
 
 #endif
+
 `;
 
-var aomap_pars_fragment = "#if defined( USE_AOMAP ) || defined( USE_SSAOMAP )\n\t#ifdef USE_AOMAP\n\t\tuniform sampler2D aoMap;\n\t#else\n\t\tuniform sampler2D ssaoMap;\n\t#endif\n\tuniform float aoMapIntensity;\n#endif";
+var aomap_pars_vertex = "#if defined( USE_SSAOMAP ) && defined(USE_SSAOMAPMATRIX )\n\tuniform mat4 ssaoMapMatrix;\n\tvarying vec2 vAoCoords;\n#endif";
 
 var begin_vertex = /* glsl */`
 vec3 transformed = vec3( position );
@@ -17214,47 +17203,7 @@ void main() {
 }
 `;
 
-var meshbasic_vert = /* glsl */`
-#include <common>
-#include <uv_pars_vertex>
-#include <uv2_pars_vertex>
-#include <envmap_pars_vertex>
-#include <color_pars_vertex>
-#include <fog_pars_vertex>
-#include <morphtarget_pars_vertex>
-#include <skinning_pars_vertex>
-#include <logdepthbuf_pars_vertex>
-#include <clipping_planes_pars_vertex>
-
-void main() {
-
-	#include <uv_vertex>
-	#include <uv2_vertex>
-	#include <color_vertex>
-	#include <skinbase_vertex>
-
-	#ifdef USE_ENVMAP
-
-	#include <beginnormal_vertex>
-	#include <morphnormal_vertex>
-	#include <skinnormal_vertex>
-	#include <defaultnormal_vertex>
-
-	#endif
-
-	#include <begin_vertex>
-	#include <morphtarget_vertex>
-	#include <skinning_vertex>
-	#include <project_vertex>
-	#include <logdepthbuf_vertex>
-
-	#include <worldpos_vertex>
-	#include <clipping_planes_vertex>
-	#include <envmap_vertex>
-	#include <fog_vertex>
-
-}
-`;
+var meshbasic_vert = "#include <common>\n#include <uv_pars_vertex>\n#include <uv2_pars_vertex>\n#include <envmap_pars_vertex>\n#include <color_pars_vertex>\n#include <fog_pars_vertex>\n#include <morphtarget_pars_vertex>\n#include <skinning_pars_vertex>\n#include <logdepthbuf_pars_vertex>\n#include <clipping_planes_pars_vertex>\n#include <aomap_pars_vertex>\nvoid main() {\n\t#include <uv_vertex>\n\t#include <uv2_vertex>\n\t#include <color_vertex>\n\t#include <skinbase_vertex>\n\t#ifdef USE_ENVMAP\n\t#include <beginnormal_vertex>\n\t#include <morphnormal_vertex>\n\t#include <skinnormal_vertex>\n\t#include <defaultnormal_vertex>\n\t#endif\n\t#include <begin_vertex>\n\t#include <morphtarget_vertex>\n\t#include <skinning_vertex>\n\t#include <project_vertex>\n\t#include <logdepthbuf_vertex>\n\t#include <worldpos_vertex>\n\t#include <clipping_planes_vertex>\n\t#include <envmap_vertex>\n\t#include <fog_vertex>\n\t#include <aomap_vertex>\n}";
 
 var meshlambert_frag = /* glsl */`
 uniform vec3 diffuse;
@@ -17355,57 +17304,7 @@ void main() {
 }
 `;
 
-var meshlambert_vert = /* glsl */`
-#define LAMBERT
-
-varying vec3 vLightFront;
-varying vec3 vIndirectFront;
-
-#ifdef DOUBLE_SIDED
-	varying vec3 vLightBack;
-	varying vec3 vIndirectBack;
-#endif
-
-#include <common>
-#include <uv_pars_vertex>
-#include <uv2_pars_vertex>
-#include <envmap_pars_vertex>
-#include <bsdfs>
-#include <lights_pars_begin>
-#include <color_pars_vertex>
-#include <fog_pars_vertex>
-#include <morphtarget_pars_vertex>
-#include <skinning_pars_vertex>
-#include <shadowmap_pars_vertex>
-#include <logdepthbuf_pars_vertex>
-#include <clipping_planes_pars_vertex>
-
-void main() {
-
-	#include <uv_vertex>
-	#include <uv2_vertex>
-	#include <color_vertex>
-
-	#include <beginnormal_vertex>
-	#include <morphnormal_vertex>
-	#include <skinbase_vertex>
-	#include <skinnormal_vertex>
-	#include <defaultnormal_vertex>
-
-	#include <begin_vertex>
-	#include <morphtarget_vertex>
-	#include <skinning_vertex>
-	#include <project_vertex>
-	#include <logdepthbuf_vertex>
-	#include <clipping_planes_vertex>
-
-	#include <worldpos_vertex>
-	#include <envmap_vertex>
-	#include <lights_lambert_vertex>
-	#include <shadowmap_vertex>
-	#include <fog_vertex>
-}
-`;
+var meshlambert_vert = "#define LAMBERT\nvarying vec3 vLightFront;\nvarying vec3 vIndirectFront;\n#ifdef DOUBLE_SIDED\n\tvarying vec3 vLightBack;\n\tvarying vec3 vIndirectBack;\n#endif\n#include <common>\n#include <uv_pars_vertex>\n#include <uv2_pars_vertex>\n#include <envmap_pars_vertex>\n#include <bsdfs>\n#include <lights_pars_begin>\n#include <color_pars_vertex>\n#include <fog_pars_vertex>\n#include <morphtarget_pars_vertex>\n#include <skinning_pars_vertex>\n#include <shadowmap_pars_vertex>\n#include <logdepthbuf_pars_vertex>\n#include <clipping_planes_pars_vertex>\n#include <aomap_pars_vertex>\nvoid main() {\n\t#include <uv_vertex>\n\t#include <uv2_vertex>\n\t#include <color_vertex>\n\t#include <beginnormal_vertex>\n\t#include <morphnormal_vertex>\n\t#include <skinbase_vertex>\n\t#include <skinnormal_vertex>\n\t#include <defaultnormal_vertex>\n\t#include <begin_vertex>\n\t#include <morphtarget_vertex>\n\t#include <skinning_vertex>\n\t#include <project_vertex>\n\t#include <logdepthbuf_vertex>\n\t#include <clipping_planes_vertex>\n\t#include <worldpos_vertex>\n\t#include <envmap_vertex>\n\t#include <lights_lambert_vertex>\n\t#include <shadowmap_vertex>\n\t#include <fog_vertex>\n\t#include <aomap_vertex>\n}";
 
 var meshmatcap_frag = /* glsl */`
 #define MATCAP
@@ -17599,63 +17498,7 @@ void main() {
 }
 `;
 
-var meshtoon_vert = /* glsl */`
-#define TOON
-
-varying vec3 vViewPosition;
-
-#ifndef FLAT_SHADED
-
-	varying vec3 vNormal;
-
-#endif
-
-#include <common>
-#include <uv_pars_vertex>
-#include <uv2_pars_vertex>
-#include <displacementmap_pars_vertex>
-#include <color_pars_vertex>
-#include <fog_pars_vertex>
-#include <morphtarget_pars_vertex>
-#include <skinning_pars_vertex>
-#include <shadowmap_pars_vertex>
-#include <logdepthbuf_pars_vertex>
-#include <clipping_planes_pars_vertex>
-
-void main() {
-
-	#include <uv_vertex>
-	#include <uv2_vertex>
-	#include <color_vertex>
-
-	#include <beginnormal_vertex>
-	#include <morphnormal_vertex>
-	#include <skinbase_vertex>
-	#include <skinnormal_vertex>
-	#include <defaultnormal_vertex>
-
-#ifndef FLAT_SHADED // Normal computed with derivatives when FLAT_SHADED
-
-	vNormal = normalize( transformedNormal );
-
-#endif
-
-	#include <begin_vertex>
-	#include <morphtarget_vertex>
-	#include <skinning_vertex>
-	#include <displacementmap_vertex>
-	#include <project_vertex>
-	#include <logdepthbuf_vertex>
-	#include <clipping_planes_vertex>
-
-	vViewPosition = - mvPosition.xyz;
-
-	#include <worldpos_vertex>
-	#include <shadowmap_vertex>
-	#include <fog_vertex>
-
-}
-`;
+var meshtoon_vert = "#define TOON\nvarying vec3 vViewPosition;\n#ifndef FLAT_SHADED\n\tvarying vec3 vNormal;\n#endif\n#include <common>\n#include <uv_pars_vertex>\n#include <uv2_pars_vertex>\n#include <displacementmap_pars_vertex>\n#include <color_pars_vertex>\n#include <fog_pars_vertex>\n#include <morphtarget_pars_vertex>\n#include <skinning_pars_vertex>\n#include <shadowmap_pars_vertex>\n#include <logdepthbuf_pars_vertex>\n#include <clipping_planes_pars_vertex>\n#include <aomap_pars_vertex>\nvoid main() {\n\t#include <uv_vertex>\n\t#include <uv2_vertex>\n\t#include <color_vertex>\n\t#include <beginnormal_vertex>\n\t#include <morphnormal_vertex>\n\t#include <skinbase_vertex>\n\t#include <skinnormal_vertex>\n\t#include <defaultnormal_vertex>\n#ifndef FLAT_SHADED\n\tvNormal = normalize( transformedNormal );\n#endif\n\t#include <begin_vertex>\n\t#include <morphtarget_vertex>\n\t#include <skinning_vertex>\n\t#include <displacementmap_vertex>\n\t#include <project_vertex>\n\t#include <logdepthbuf_vertex>\n\t#include <clipping_planes_vertex>\n\tvViewPosition = - mvPosition.xyz;\n\t#include <worldpos_vertex>\n\t#include <shadowmap_vertex>\n\t#include <fog_vertex>\n\t#include <aomap_vertex>\n}";
 
 var meshphong_frag = /* glsl */`
 #define PHONG
@@ -17733,65 +17576,7 @@ void main() {
 }
 `;
 
-var meshphong_vert = /* glsl */`
-#define PHONG
-
-varying vec3 vViewPosition;
-
-#ifndef FLAT_SHADED
-
-	varying vec3 vNormal;
-
-#endif
-
-#include <common>
-#include <uv_pars_vertex>
-#include <uv2_pars_vertex>
-#include <displacementmap_pars_vertex>
-#include <envmap_pars_vertex>
-#include <color_pars_vertex>
-#include <fog_pars_vertex>
-#include <morphtarget_pars_vertex>
-#include <skinning_pars_vertex>
-#include <shadowmap_pars_vertex>
-#include <logdepthbuf_pars_vertex>
-#include <clipping_planes_pars_vertex>
-
-void main() {
-
-	#include <uv_vertex>
-	#include <uv2_vertex>
-	#include <color_vertex>
-
-	#include <beginnormal_vertex>
-	#include <morphnormal_vertex>
-	#include <skinbase_vertex>
-	#include <skinnormal_vertex>
-	#include <defaultnormal_vertex>
-
-#ifndef FLAT_SHADED // Normal computed with derivatives when FLAT_SHADED
-
-	vNormal = normalize( transformedNormal );
-
-#endif
-
-	#include <begin_vertex>
-	#include <morphtarget_vertex>
-	#include <skinning_vertex>
-	#include <displacementmap_vertex>
-	#include <project_vertex>
-	#include <logdepthbuf_vertex>
-	#include <clipping_planes_vertex>
-
-	vViewPosition = - mvPosition.xyz;
-
-	#include <worldpos_vertex>
-	#include <envmap_vertex>
-	#include <shadowmap_vertex>
-	#include <fog_vertex>
-
-}
-`;
+var meshphong_vert = "#define PHONG\nvarying vec3 vViewPosition;\n#ifndef FLAT_SHADED\n\tvarying vec3 vNormal;\n#endif\n#include <common>\n#include <uv_pars_vertex>\n#include <uv2_pars_vertex>\n#include <displacementmap_pars_vertex>\n#include <envmap_pars_vertex>\n#include <color_pars_vertex>\n#include <fog_pars_vertex>\n#include <morphtarget_pars_vertex>\n#include <skinning_pars_vertex>\n#include <shadowmap_pars_vertex>\n#include <logdepthbuf_pars_vertex>\n#include <clipping_planes_pars_vertex>\n#include <aomap_pars_vertex>\nvoid main() {\n\t#include <uv_vertex>\n\t#include <uv2_vertex>\n\t#include <color_vertex>\n\t#include <beginnormal_vertex>\n\t#include <morphnormal_vertex>\n\t#include <skinbase_vertex>\n\t#include <skinnormal_vertex>\n\t#include <defaultnormal_vertex>\n#ifndef FLAT_SHADED\n\tvNormal = normalize( transformedNormal );\n#endif\n\t#include <begin_vertex>\n\t#include <morphtarget_vertex>\n\t#include <skinning_vertex>\n\t#include <displacementmap_vertex>\n\t#include <project_vertex>\n\t#include <logdepthbuf_vertex>\n\t#include <clipping_planes_vertex>\n\tvViewPosition = - mvPosition.xyz;\n\t#include <worldpos_vertex>\n\t#include <envmap_vertex>\n\t#include <shadowmap_vertex>\n\t#include <fog_vertex>\n\t#include <aomap_vertex>\n}";
 
 var meshphysical_frag = /* glsl */`
 #define STANDARD
@@ -17921,77 +17706,7 @@ void main() {
 }
 `;
 
-var meshphysical_vert = /* glsl */`
-#define STANDARD
-
-varying vec3 vViewPosition;
-
-#ifndef FLAT_SHADED
-
-	varying vec3 vNormal;
-
-	#ifdef USE_TANGENT
-
-		varying vec3 vTangent;
-		varying vec3 vBitangent;
-
-	#endif
-
-#endif
-
-#include <common>
-#include <uv_pars_vertex>
-#include <uv2_pars_vertex>
-#include <displacementmap_pars_vertex>
-#include <color_pars_vertex>
-#include <fog_pars_vertex>
-#include <morphtarget_pars_vertex>
-#include <skinning_pars_vertex>
-#include <shadowmap_pars_vertex>
-#include <logdepthbuf_pars_vertex>
-#include <clipping_planes_pars_vertex>
-
-void main() {
-
-	#include <uv_vertex>
-	#include <uv2_vertex>
-	#include <color_vertex>
-
-	#include <beginnormal_vertex>
-	#include <morphnormal_vertex>
-	#include <skinbase_vertex>
-	#include <skinnormal_vertex>
-	#include <defaultnormal_vertex>
-
-#ifndef FLAT_SHADED // Normal computed with derivatives when FLAT_SHADED
-
-	vNormal = normalize( transformedNormal );
-
-	#ifdef USE_TANGENT
-
-		vTangent = normalize( transformedTangent );
-		vBitangent = normalize( cross( vNormal, vTangent ) * tangent.w );
-
-	#endif
-
-#endif
-
-	#include <begin_vertex>
-	#include <morphtarget_vertex>
-	#include <skinning_vertex>
-	#include <displacementmap_vertex>
-	#include <project_vertex>
-	#include <logdepthbuf_vertex>
-	#include <clipping_planes_vertex>
-
-	vViewPosition = - mvPosition.xyz;
-
-	#include <worldpos_vertex>
-	#include <shadowmap_vertex>
-	#include <fog_vertex>
-
-}
-`;
+var meshphysical_vert = "#define STANDARD\nvarying vec3 vViewPosition;\n#ifndef FLAT_SHADED\n\tvarying vec3 vNormal;\n\t#ifdef USE_TANGENT\n\t\tvarying vec3 vTangent;\n\t\tvarying vec3 vBitangent;\n\t#endif\n#endif\n#include <common>\n#include <uv_pars_vertex>\n#include <uv2_pars_vertex>\n#include <displacementmap_pars_vertex>\n#include <color_pars_vertex>\n#include <fog_pars_vertex>\n#include <morphtarget_pars_vertex>\n#include <skinning_pars_vertex>\n#include <shadowmap_pars_vertex>\n#include <logdepthbuf_pars_vertex>\n#include <clipping_planes_pars_vertex>\n#include <aomap_pars_vertex>\nvoid main() {\n\t#include <uv_vertex>\n\t#include <uv2_vertex>\n\t#include <color_vertex>\n\t#include <beginnormal_vertex>\n\t#include <morphnormal_vertex>\n\t#include <skinbase_vertex>\n\t#include <skinnormal_vertex>\n\t#include <defaultnormal_vertex>\n#ifndef FLAT_SHADED\n\tvNormal = normalize( transformedNormal );\n\t#ifdef USE_TANGENT\n\t\tvTangent = normalize( transformedTangent );\n\t\tvBitangent = normalize( cross( vNormal, vTangent ) * tangent.w );\n\t#endif\n#endif\n\t#include <begin_vertex>\n\t#include <morphtarget_vertex>\n\t#include <skinning_vertex>\n\t#include <displacementmap_vertex>\n\t#include <project_vertex>\n\t#include <logdepthbuf_vertex>\n\t#include <clipping_planes_vertex>\n\tvViewPosition = - mvPosition.xyz;\n\t#include <worldpos_vertex>\n\t#include <shadowmap_vertex>\n\t#include <fog_vertex>\n\t#include <aomap_vertex>\n}";
 
 var normal_frag = /* glsl */`
 #define NORMAL
@@ -18309,6 +18024,8 @@ const ShaderChunk = {
 	alphatest_fragment: alphatest_fragment,
 	aomap_fragment: aomap_fragment,
 	aomap_pars_fragment: aomap_pars_fragment,
+	aomap_vertex: aomap_vertex,
+	aomap_pars_vertex: aomap_pars_vertex,
 	begin_vertex: begin_vertex,
 	beginnormal_vertex: beginnormal_vertex,
 	bsdfs: bsdfs,
@@ -18481,7 +18198,8 @@ const UniformsLib = {
 	ssaomap: {
 
 		ssaoMap: { value: null },
-		aoMapIntensity: { value: 1 }
+		aoMapIntensity: { value: 1 },
+		ssaoMapMatrix: { value: null },
 
 	},
 
@@ -22217,6 +21935,7 @@ function WebGLProgram( renderer, cacheKey, parameters, bindingStates ) {
 			parameters.lightMap ? '#define USE_LIGHTMAP' : '',
 			parameters.aoMap ? '#define USE_AOMAP' : '',
 			parameters.ssaoMap ? '#define USE_SSAOMAP' : '',
+			parameters.ssaoMapMatrix ? '#define USE_SSAOMAPMATRIX' : '',
 			parameters.emissiveMap ? '#define USE_EMISSIVEMAP' : '',
 			parameters.bumpMap ? '#define USE_BUMPMAP' : '',
 			parameters.normalMap ? '#define USE_NORMALMAP' : '',
@@ -22354,6 +22073,7 @@ function WebGLProgram( renderer, cacheKey, parameters, bindingStates ) {
 			parameters.lightMap ? '#define USE_LIGHTMAP' : '',
 			parameters.aoMap ? '#define USE_AOMAP' : '',
 			parameters.ssaoMap ? '#define USE_SSAOMAP' : '',
+			parameters.ssaoMapMatrix ? '#define USE_SSAOMAPMATRIX' : '',
 			parameters.emissiveMap ? '#define USE_EMISSIVEMAP' : '',
 			parameters.bumpMap ? '#define USE_BUMPMAP' : '',
 			parameters.normalMap ? '#define USE_NORMALMAP' : '',
@@ -22645,7 +22365,7 @@ function WebGLPrograms( renderer, cubemaps, extensions, capabilities, bindingSta
 	const parameterNames = [
 		"precision", "isWebGL2", "supportsVertexTextures", "outputEncoding", "instancing", "instancingColor",
 		"map", "mapEncoding", "matcap", "matcapEncoding", "envMap", "envMapMode", "envMapEncoding", "envMapCubeUV",
-		"lightMap", "lightMapEncoding", "aoMap", "ssaoMap", "emissiveMap", "emissiveMapEncoding", "bumpMap", "normalMap", "objectSpaceNormalMap", "tangentSpaceNormalMap", "clearcoatMap", "clearcoatRoughnessMap", "clearcoatNormalMap", "displacementMap", "specularMap",
+		"lightMap", "lightMapEncoding", "aoMap", "ssaoMap", "ssaoMapMatrix", "emissiveMap", "emissiveMapEncoding", "bumpMap", "normalMap", "objectSpaceNormalMap", "tangentSpaceNormalMap", "clearcoatMap", "clearcoatRoughnessMap", "clearcoatNormalMap", "displacementMap", "specularMap",
 		"roughnessMap", "metalnessMap", "gradientMap",
 		"alphaMap", "combine", "vertexColors", "vertexTangents", "vertexUvs", "uvsVertexOnly", "fog", "useFog", "fogExp2",
 		"flatShading", "sizeAttenuation", "logarithmicDepthBuffer", "skinning",
@@ -22794,6 +22514,7 @@ function WebGLPrograms( renderer, cubemaps, extensions, capabilities, bindingSta
 			lightMapEncoding: getTextureEncodingFromMap( material.lightMap ),
 			aoMap: !! material.aoMap,
 			ssaoMap: !! material.ssaoMap,
+			ssaoMapMatrix: !! material.ssaoMapMatrix,
 			emissiveMap: !! material.emissiveMap,
 			emissiveMapEncoding: getTextureEncodingFromMap( material.emissiveMap ),
 			bumpMap: !! material.bumpMap,
@@ -27824,6 +27545,7 @@ function WebGLMaterials( properties ) {
 
 			uniforms.ssaoMap.value = material.ssaoMap;
 			uniforms.aoMapIntensity.value = material.aoMapIntensity;
+			uniforms.ssaoMapMatrix.value = material.ssaoMapMatrix;
 
 		}
 
@@ -38531,6 +38253,7 @@ function MeshStandardMaterial( parameters ) {
 
 	this.aoMap = null;
 	this.ssaoMap = null;
+	this.ssaoMapMatrix = null;
 	this.aoMapIntensity = 1.0;
 
 	this.emissive = new Color( 0x000000 );
@@ -38808,6 +38531,7 @@ function MeshPhongMaterial( parameters ) {
 
 	this.aoMap = null;
 	this.ssaoMap = null;
+	this.ssaoMapMatrix = null;
 	this.aoMapIntensity = 1.0;
 
 	this.emissive = new Color( 0x000000 );
@@ -38962,6 +38686,7 @@ function MeshToonMaterial( parameters ) {
 
 	this.aoMap = null;
 	this.ssaoMap = null;
+	this.ssaoMapMatrix = null;
 	this.aoMapIntensity = 1.0;
 
 	this.emissive = new Color( 0x000000 );
@@ -39179,6 +38904,7 @@ function MeshLambertMaterial( parameters ) {
 
 	this.aoMap = null;
 	this.ssaoMap = null;
+	this.ssaoMapMatrix = null;
 	this.aoMapIntensity = 1.0;
 
 	this.emissive = new Color( 0x000000 );

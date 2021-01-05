@@ -2,6 +2,7 @@ import { Color } from './../math/Color';
 import { Texture } from './../textures/Texture';
 import { MaterialParameters, Material } from './Material';
 import { Combine } from '../constants';
+import { Matrix4 } from "../math/Matrix4";
 /**
  * parameters is an object with one or more properties defining the material's appearance.
  */
@@ -11,6 +12,7 @@ export interface MeshBasicMaterialParameters extends MaterialParameters {
 	map?: Texture | null;
 	aoMap?: Texture | null;
 	ssaoMap?: Texture | null;
+	ssaoMapMatrix?: Matrix4 | null;
 	aoMapIntensity?: number;
 	specularMap?: Texture | null;
 	alphaMap?: Texture | null;
