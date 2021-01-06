@@ -1993,6 +1993,7 @@ function WebGLRenderer( parameters ) {
 		if ( material.ssaoMap ) {
 
 			uniforms.ssaoMap.value = material.ssaoMap;
+			uniforms.ssaoMapMatrix.value = material.ssaoMapMatrix;
 			uniforms.aoMapIntensity.value = material.aoMapIntensity;
 
 		}
