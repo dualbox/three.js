@@ -3,13 +3,19 @@ export default /* glsl */`
 
 	// reads channel R, compatible with a combined OcclusionRoughnessMetallic (RGB) texture
 	#ifdef USE_AOMAP
-	
+
 		float ambientOcclusion = ( texture2D( aoMap, vUv2 ).r - 1.0 ) * aoMapIntensity + 1.0;
-		
+
 	#else
-	
-		float ambientOcclusion = ( texture2D( ssaoMap, gl_FragCoord.xy / renderSize ).r - 1.0 ) * aoMapIntensity + 1.0;
-	
+
+		#ifndef USE_SSAOMAPMATRIX
+
+			vec2 vAoCoords = gl_FragCoord.xy / renderSize;
+
+		#endif
+
+		float ambientOcclusion = ( texture2D( ssaoMap, vAoCoords ).r - 1.0 ) * aoMapIntensity + 1.0;
+
 	#endif
 
 	reflectedLight.indirectDiffuse *= ambientOcclusion;

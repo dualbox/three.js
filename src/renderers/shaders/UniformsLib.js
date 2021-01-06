@@ -47,7 +47,8 @@ const UniformsLib = {
 	ssaomap: {
 
 		ssaoMap: { value: null },
-		aoMapIntensity: { value: 1 }
+		aoMapIntensity: { value: 1 },
+		ssaoMapMatrix: { value: null },
 
 	},
 

@@ -178,6 +178,7 @@ function WebGLMaterials( properties ) {
 
 			uniforms.ssaoMap.value = material.ssaoMap;
 			uniforms.aoMapIntensity.value = material.aoMapIntensity;
+			uniforms.ssaoMapMatrix.value = material.ssaoMapMatrix;
 
 		}
 

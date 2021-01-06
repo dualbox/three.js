@@ -2,6 +2,7 @@ import { Color } from './../math/Color';
 import { Texture } from './../textures/Texture';
 import { MaterialParameters, Material } from './Material';
 import { Combine } from '../constants';
+import { Matrix4 } from "../math/Matrix4";
 
 export interface MeshLambertMaterialParameters extends MaterialParameters {
 	color?: Color | string | number;
@@ -13,6 +14,7 @@ export interface MeshLambertMaterialParameters extends MaterialParameters {
 	lightMapIntensity?: number;
 	aoMap?: Texture | null;
 	ssaoMap?: Texture | null;
+	ssaoMapMatrix?: Matrix4 | null;
 	aoMapIntensity?: number;
 	specularMap?: Texture | null;
 	alphaMap?: Texture | null;
