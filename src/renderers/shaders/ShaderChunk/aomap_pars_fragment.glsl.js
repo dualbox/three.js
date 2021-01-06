@@ -9,6 +9,12 @@ export default /* glsl */`
 
 		uniform sampler2D ssaoMap;
 
+		#ifdef USE_SSAOMAPMATRIX
+
+			varying vec2 vAoCoords;
+
+		#endif
+
 	#endif
 
 	uniform float aoMapIntensity;

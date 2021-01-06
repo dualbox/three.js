@@ -29,7 +29,7 @@ function WebGLPrograms( renderer, extensions, capabilities ) {
 
 	var parameterNames = [
 		"precision", "supportsVertexTextures", "map", "mapEncoding", "matcap", "matcapEncoding", "envMap", "envMapMode", "envMapEncoding",
-		"lightMap", "aoMap", "ssaoMap", "emissiveMap", "emissiveMapEncoding", "bumpMap", "normalMap", "objectSpaceNormalMap", "displacementMap", "specularMap",
+		"lightMap", "aoMap", "ssaoMap", "ssaoMapMatrix", "emissiveMap", "emissiveMapEncoding", "bumpMap", "normalMap", "objectSpaceNormalMap", "displacementMap", "specularMap",
 		"roughnessMap", "metalnessMap", "gradientMap",
 		"alphaMap", "combine", "vertexColors", "fog", "useFog", "fogExp",
 		"flatShading", "sizeAttenuation", "logarithmicDepthBuffer", "skinning",
@@ -149,6 +149,7 @@ function WebGLPrograms( renderer, extensions, capabilities ) {
 			lightMap: !! material.lightMap,
 			aoMap: !! material.aoMap,
 			ssaoMap: !! material.ssaoMap,
+			ssaoMapMatrix: !! material.ssaoMapMatrix,
 			emissiveMap: !! material.emissiveMap,
 			emissiveMapEncoding: getTextureEncodingFromMap( material.emissiveMap, renderer.gammaInput ),
 			bumpMap: !! material.bumpMap,

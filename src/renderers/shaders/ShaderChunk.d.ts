@@ -7,6 +7,8 @@ export let ShaderChunk: {
   alphatest_fragment: string;
   aomap_fragment: string;
   aomap_pars_fragment: string;
+  aomap_vertex: string;
+  aomap_pars_vertex: string;
   begin_vertex: string;
   beginnormal_vertex: string;
   bsdfs: string;
