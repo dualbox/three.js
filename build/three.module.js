@@ -29806,7 +29806,7 @@ function WebGLRenderer( parameters ) {
 		if ( material.isShaderMaterial ) {
 
 			if ( material.uniforms.projectionMatrixInverse )
-				material.uniforms.projectionMatrixInverse = { value: _tmpMatrix4.getInverse( camera.projectionMatrix ) };
+				material.uniforms.projectionMatrixInverse = { value: camera.projectionMatrixInverse };
 
 			if ( material.uniforms.viewMatrixInverse )
 				material.uniforms.viewMatrixInverse = { value: camera.matrixWorld };

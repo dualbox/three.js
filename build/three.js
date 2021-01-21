@@ -18527,7 +18527,7 @@
 
 			if (material.isShaderMaterial) {
 				if (material.uniforms.projectionMatrixInverse) material.uniforms.projectionMatrixInverse = {
-					value: _tmpMatrix4.getInverse(camera.projectionMatrix)
+					value: camera.projectionMatrixInverse
 				};
 				if (material.uniforms.viewMatrixInverse) material.uniforms.viewMatrixInverse = {
 					value: camera.matrixWorld
