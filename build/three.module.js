@@ -23953,16 +23953,6 @@ function WebGLRenderer( parameters ) {
 
 	function renderObject( object, scene, camera, geometry, material, group ) {
 
-		if ( material && material.uniforms ) {
-
-			if ( material.uniforms.viewMatrixInverse )
-				material.uniforms.viewMatrixInverse.value.copy( camera.matrixWorld );
-
-			if ( material.uniforms.projectionMatrixInverse )
-				material.uniforms.projectionMatrixInverse.value.getInverse( camera.projectionMatrix );
-
-		}
-
 		object.onBeforeRender( _this, scene, camera, geometry, material, group );
 		currentRenderState = renderStates.get( scene, _currentArrayCamera || camera );
 
@@ -24181,6 +24171,16 @@ function WebGLRenderer( parameters ) {
 	function setProgram( camera, fog, material, object ) {
 
 		_usedTextureUnits = 0;
+
+		if ( material.isShaderMaterial ) {
+
+			if ( material.uniforms.viewMatrixInverse )
+				material.uniforms.viewMatrixInverse = { value: camera.matrixWorld };
+
+			if ( material.uniforms.projectionMatrixInverse )
+				material.uniforms.projectionMatrixInverse = { value: camera.projectionMatrixInverse };
+
+		}
 
 		var materialProperties = properties.get( material );
 		var lights = currentRenderState.state.lights;
