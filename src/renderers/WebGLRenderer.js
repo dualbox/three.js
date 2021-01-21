@@ -158,6 +158,8 @@ function WebGLRenderer( parameters ) {
 
 	const _projScreenMatrix = new Matrix4();
 
+	const _tmpMatrix4 = new Matrix4();
+
 	const _vector3 = new Vector3();
 
 	const _emptyScene = { background: null, fog: null, environment: null, overrideMaterial: null, isScene: true };
@@ -1269,16 +1271,6 @@ function WebGLRenderer( parameters ) {
 
 	function renderObject( object, scene, camera, geometry, material, group ) {
 
-		if ( material && material.uniforms ) {
-
-			if ( material.uniforms.viewMatrixInverse )
-				material.uniforms.viewMatrixInverse.value.copy( camera.matrixWorld );
-
-			if ( material.uniforms.projectionMatrixInverse )
-				material.uniforms.projectionMatrixInverse.value.getInverse( camera.projectionMatrix );
-
-		}
-
 		object.onBeforeRender( _this, scene, camera, geometry, material, group );
 		currentRenderState = renderStates.get( scene, _currentArrayCamera || camera );
 
@@ -1432,6 +1424,16 @@ function WebGLRenderer( parameters ) {
 		const environment = material.isMeshStandardMaterial ? scene.environment : null;
 		const encoding = ( _currentRenderTarget === null ) ? _this.outputEncoding : _currentRenderTarget.texture.encoding;
 		const envMap = cubemaps.get( material.envMap || environment );
+
+		if ( material.isShaderMaterial ) {
+
+			if ( material.uniforms.projectionMatrixInverse )
+				material.uniforms.projectionMatrixInverse = { value: _tmpMatrix4.getInverse( camera.projectionMatrix ) };
+
+			if ( material.uniforms.viewMatrixInverse )
+				material.uniforms.viewMatrixInverse = { value: camera.matrixWorld };
+
+		}
 
 		const materialProperties = properties.get( material );
 		const lights = currentRenderState.state.lights;
