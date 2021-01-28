@@ -1,6 +1,6 @@
 {
   "name": "@dualbox/three",
-  "version": "1.122.6",
+  "version": "1.122.7",
   "description": "Dualbox fork of Three.js JavaScript 3D library",
   "main": "build/three.js",
   "module": "build/three.module.js",
