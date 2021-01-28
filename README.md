@@ -34,5 +34,6 @@ and updated by `WebGLRenderer`
         - `MeshPhongMaterial`
         - `MeshStandardMaterial`
         - **[r121+]** `MeshToonMaterial`
+    - if `aoMap` is also defined, `ssaoMap` takes precedance over it 
     - added the `ssaoMapMatrix` parameter, which can be used to manually compute the SSAO 
       texture coordinates.
