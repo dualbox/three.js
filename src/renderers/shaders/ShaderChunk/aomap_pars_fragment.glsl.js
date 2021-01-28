@@ -1,7 +1,7 @@
 export default /* glsl */`
 #if defined( USE_AOMAP ) || defined( USE_SSAOMAP )
 
-	#ifdef USE_AOMAP
+	#ifndef USE_SSAOMAP
 
 		uniform sampler2D aoMap;
 
