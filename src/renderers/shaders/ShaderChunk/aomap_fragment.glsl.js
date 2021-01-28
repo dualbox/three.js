@@ -2,7 +2,7 @@ export default /* glsl */`
 #if defined( USE_AOMAP ) || defined( USE_SSAOMAP )
 
 	// reads channel R, compatible with a combined OcclusionRoughnessMetallic (RGB) texture
-	#ifdef USE_AOMAP
+	#ifndef USE_SSAOMAP
 
 		float ambientOcclusion = ( texture2D( aoMap, vUv2 ).r - 1.0 ) * aoMapIntensity + 1.0;
 
