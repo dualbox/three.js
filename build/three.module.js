@@ -13168,62 +13168,9 @@ var alphatest_fragment = /* glsl */`
 #endif
 `;
 
-var aomap_fragment = /* glsl */`
-#if defined( USE_AOMAP ) || defined( USE_SSAOMAP )
+var aomap_fragment = "#if defined( USE_AOMAP ) || defined( USE_SSAOMAP )\n\t#ifndef USE_SSAOMAP\n\t\tfloat ambientOcclusion = ( texture2D( aoMap, vUv2 ).r - 1.0 ) * aoMapIntensity + 1.0;\n\t#else\n\t\t#ifndef USE_SSAOMAPMATRIX\n\t\t\tvec2 vAoCoords = gl_FragCoord.xy / renderSize;\n\t\t#endif\n\t\tfloat ambientOcclusion = ( texture2D( ssaoMap, vAoCoords ).r - 1.0 ) * aoMapIntensity + 1.0;\n\t#endif\n\treflectedLight.indirectDiffuse *= ambientOcclusion;\n\t#if defined( USE_ENVMAP ) && defined( STANDARD )\n\t\tfloat dotNV = saturate( dot( geometry.normal, geometry.viewDir ) );\n\t\treflectedLight.indirectSpecular *= computeSpecularOcclusion( dotNV, ambientOcclusion, material.specularRoughness );\n\t#endif\n#endif";
 
-	// reads channel R, compatible with a combined OcclusionRoughnessMetallic (RGB) texture
-	#ifdef USE_AOMAP
-
-		float ambientOcclusion = ( texture2D( aoMap, vUv2 ).r - 1.0 ) * aoMapIntensity + 1.0;
-
-	#else
-
-		#ifndef USE_SSAOMAPMATRIX
-
-			vec2 vAoCoords = gl_FragCoord.xy / renderSize;
-
-		#endif
-
-		float ambientOcclusion = ( texture2D( ssaoMap, vAoCoords ).r - 1.0 ) * aoMapIntensity + 1.0;
-
-	#endif
-
-	reflectedLight.indirectDiffuse *= ambientOcclusion;
-
-	#if defined( USE_ENVMAP ) && defined( STANDARD )
-
-		float dotNV = saturate( dot( geometry.normal, geometry.viewDir ) );
-
-		reflectedLight.indirectSpecular *= computeSpecularOcclusion( dotNV, ambientOcclusion, material.specularRoughness );
-
-	#endif
-
-#endif
-`;
-
-var aomap_pars_fragment = /* glsl */`
-#if defined( USE_AOMAP ) || defined( USE_SSAOMAP )
-
-	#ifdef USE_AOMAP
-
-		uniform sampler2D aoMap;
-
-	#else
-
-		uniform sampler2D ssaoMap;
-
-		#ifdef USE_SSAOMAPMATRIX
-
-			varying vec2 vAoCoords;
-
-		#endif
-
-	#endif
-
-	uniform float aoMapIntensity;
-
-#endif
-`;
+var aomap_pars_fragment = "#if defined( USE_AOMAP ) || defined( USE_SSAOMAP )\n\t#ifndef USE_SSAOMAP\n\t\tuniform sampler2D aoMap;\n\t#else\n\t\tuniform sampler2D ssaoMap;\n\t\t#ifdef USE_SSAOMAPMATRIX\n\t\t\tvarying vec2 vAoCoords;\n\t\t#endif\n\t#endif\n\tuniform float aoMapIntensity;\n#endif";
 
 var aomap_vertex = /* glsl */ `
 
