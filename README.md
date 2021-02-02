@@ -13,6 +13,7 @@ and added to `Three.js` and `Three.d.ts`
 `WebGLRenderer`
 - Added `renderSize` uniform to fragment shaders, declared in `WebGLProgram.js`
 and updated by `WebGLRenderer`
+- Updated `FXAAShader` to support alpha input
 - ssaoMap material suport:
     - Edited `aomap_fragment.glsl.js` and `aomap_pars_fragment.glsl.js` shaders 
     to support the use of ssaoMap.
