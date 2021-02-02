@@ -13,7 +13,7 @@ THREE.FXAAShader = {
 		'resolution': { value: new THREE.Vector2( 1 / 1024, 1 / 512 ) },
 		'lumaVector': { value: new THREE.Vector4( 0.239, 0.470, 0.091, 0.200 ) },
 		'fxaaQualityEdgeThreshold': { value: 0.166 },
-		'fxaaQualityEdgeThresholdMin': { value: 0.833 },
+		'fxaaQualityEdgeThresholdMin': { value: 0.0833 },
 
 	},
 
@@ -1141,8 +1141,8 @@ THREE.FXAAShader = {
 
 	defines: {
 
-		FXAA_KEEP_ALPHA: 1,
-		USE_LUMA_VECTOR: 1,
+		FXAA_KEEP_ALPHA: 0,
+		USE_LUMA_VECTOR: 0,
 		FXAA_QUALITY_PRESET: 12,
 
 	}
