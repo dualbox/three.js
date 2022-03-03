@@ -13168,9 +13168,62 @@ var alphatest_fragment = /* glsl */`
 #endif
 `;
 
-var aomap_fragment = "#if defined( USE_AOMAP ) || defined( USE_SSAOMAP )\n\t#ifndef USE_SSAOMAP\n\t\tfloat ambientOcclusion = ( texture2D( aoMap, vUv2 ).r - 1.0 ) * aoMapIntensity + 1.0;\n\t#else\n\t\t#ifndef USE_SSAOMAPMATRIX\n\t\t\tvec2 vAoCoords = gl_FragCoord.xy / renderSize;\n\t\t#endif\n\t\tfloat ambientOcclusion = ( texture2D( ssaoMap, vAoCoords ).r - 1.0 ) * aoMapIntensity + 1.0;\n\t#endif\n\treflectedLight.indirectDiffuse *= ambientOcclusion;\n\t#if defined( USE_ENVMAP ) && defined( STANDARD )\n\t\tfloat dotNV = saturate( dot( geometry.normal, geometry.viewDir ) );\n\t\treflectedLight.indirectSpecular *= computeSpecularOcclusion( dotNV, ambientOcclusion, material.specularRoughness );\n\t#endif\n#endif";
+var aomap_fragment = /* glsl */`
+#if defined( USE_AOMAP ) || defined( USE_SSAOMAP )
 
-var aomap_pars_fragment = "#if defined( USE_AOMAP ) || defined( USE_SSAOMAP )\n\t#ifndef USE_SSAOMAP\n\t\tuniform sampler2D aoMap;\n\t#else\n\t\tuniform sampler2D ssaoMap;\n\t\t#ifdef USE_SSAOMAPMATRIX\n\t\t\tvarying vec2 vAoCoords;\n\t\t#endif\n\t#endif\n\tuniform float aoMapIntensity;\n#endif";
+	// reads channel R, compatible with a combined OcclusionRoughnessMetallic (RGB) texture
+	#ifndef USE_SSAOMAP
+
+		float ambientOcclusion = ( texture2D( aoMap, vUv2 ).r - 1.0 ) * aoMapIntensity + 1.0;
+
+	#else
+
+		#ifndef USE_SSAOMAPMATRIX
+
+			vec2 vAoCoords = gl_FragCoord.xy / renderSize;
+
+		#endif
+
+		float ambientOcclusion = ( texture2D( ssaoMap, vAoCoords ).r - 1.0 ) * aoMapIntensity + 1.0;
+
+	#endif
+
+	reflectedLight.indirectDiffuse *= ambientOcclusion;
+
+	#if defined( USE_ENVMAP ) && defined( STANDARD )
+
+		float dotNV = saturate( dot( geometry.normal, geometry.viewDir ) );
+
+		reflectedLight.indirectSpecular *= computeSpecularOcclusion( dotNV, ambientOcclusion, material.specularRoughness );
+
+	#endif
+
+#endif
+`;
+
+var aomap_pars_fragment = /* glsl */`
+#if defined( USE_AOMAP ) || defined( USE_SSAOMAP )
+
+	#ifndef USE_SSAOMAP
+
+		uniform sampler2D aoMap;
+
+	#else
+
+		uniform sampler2D ssaoMap;
+
+		#ifdef USE_SSAOMAPMATRIX
+
+			varying vec2 vAoCoords;
+
+		#endif
+
+	#endif
+
+	uniform float aoMapIntensity;
+
+#endif
+`;
 
 var aomap_vertex = /* glsl */ `
 
@@ -30028,7 +30081,7 @@ function WebGLRenderer( parameters ) {
 		if ( _currentRenderTarget )
 			_resolution.set( _currentRenderTarget.width, _currentRenderTarget.height );
 		else
-			_resolution.set( _width, _height );
+			_resolution.set( _width * _pixelRatio, _height * _pixelRatio ).floor();
 		p_uniforms.setValue( _gl, 'renderSize', _resolution );
 
 		return program;
@@ -51756,69 +51809,86 @@ class Cylindrical {
  */
 function Cone( v, axis, theta, inf, sup ) {
 
-	this.v = v || new Vector3();
-	this.axis = axis || new Vector3( 1, 0, 0 );
-	this.theta = theta || 0;
-	this.inf = inf || 0;
-	this.sup = sup || + Infinity;
+    this.v = v || new Vector3();
+    this.axis = axis || new Vector3( 1, 0, 0 );
+    this.theta = theta || 0;
+    this.inf = inf || 0;
+    this.sup = sup || + Infinity;
 
-	this.cosTheta = Math.cos( theta );
+    this.cosTheta = Math.cos( theta );
 
 }
 
 Object.assign( Cone.prototype, {
 
-	set: function ( v, axis, theta, inf, sup ) {
+    set: function ( v, axis, theta, inf, sup ) {
 
-		this.v.copy( v );
-		this.axis.copy( axis );
-		this.theta = theta;
-		this.inf = inf || 0;
-		this.sup = sup || + Infinity;
+        this.v.copy( v );
+        this.axis.copy( axis );
+        this.theta = theta;
+        this.inf = inf || 0;
+        this.sup = sup || + Infinity;
 
-		this.cosTheta = Math.cos( theta );
+        this.cosTheta = Math.cos( theta );
 
-		return this;
+        return this;
 
-	},
+    },
 
-	clone: function () {
+    clone: function () {
 
-		return new this.constructor().copy( this );
+        return new this.constructor().copy( this );
 
-	},
+    },
 
-	copy: function ( cone ) {
+    copy: function ( cone ) {
 
-		this.v.copy( cone.v );
-		this.axis.copy( cone.axis );
-		this.theta = cone.theta;
-		this.inf = cone.inf;
-		this.sup = cone.sup;
+        this.v.copy( cone.v );
+        this.axis.copy( cone.axis );
+        this.theta = cone.theta;
+        this.inf = cone.inf;
+        this.sup = cone.sup;
 
-		this.cosTheta = Math.cos( this.theta );
+        this.cosTheta = Math.cos( this.theta );
 
-		return this;
+        return this;
 
-	},
+    },
 
-	empty: function () {
+    empty: function () {
 
-		return ( this.theta <= 0 || this.inf >= this.sup );
+        return ( this.theta <= 0 || this.inf >= this.sup );
 
-	},
+    },
 
-	getBoundingBox: function ( target ) {
+    containsPoint: function () {
+        let tmp = new Vector3();
+        return function (point) {
+            tmp.subVectors(point, this.v);
+            let t = tmp.dot(this.axis);
+            if (t < this.inf || t > this.sup || Math.abs(t) < Number.MIN_VALUE) {
+                return false;
+            } else {
+                // radius at t
+                let r = Math.abs(t) * Math.tan(this.theta);
+                tmp.copy(this.axis).multiplyScalar(t).add(this.v);
+                tmp.sub(point);
+                return tmp.lengthSq() <= r * r;
+            }
+        };
+    }(),
 
-		throw "not implemented yet, todo";
+    getBoundingBox: function ( target ) {
 
-	},
+        throw "not implemented yet, todo";
 
-	equals: function ( cone ) {
+    },
 
-		return cone.v.equals( this.v ) && cone.axis.equals( this.axis ) && cone.theta === this.theta && cone.inf === this.inf && cone.sup === this.sup;
+    equals: function ( cone ) {
 
-	}
+        return cone.v.equals( this.v ) && cone.axis.equals( this.axis ) && cone.theta === this.theta && cone.inf === this.inf && cone.sup === this.sup;
+
+    }
 
 } );
 

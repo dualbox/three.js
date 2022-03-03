@@ -10117,9 +10117,11 @@
 	var alphatest_fragment = /* glsl */
 	"\n#ifdef ALPHATEST\n\n\tif ( diffuseColor.a < ALPHATEST ) discard;\n\n#endif\n";
 
-	var aomap_fragment = "#if defined( USE_AOMAP ) || defined( USE_SSAOMAP )\n\t#ifndef USE_SSAOMAP\n\t\tfloat ambientOcclusion = ( texture2D( aoMap, vUv2 ).r - 1.0 ) * aoMapIntensity + 1.0;\n\t#else\n\t\t#ifndef USE_SSAOMAPMATRIX\n\t\t\tvec2 vAoCoords = gl_FragCoord.xy / renderSize;\n\t\t#endif\n\t\tfloat ambientOcclusion = ( texture2D( ssaoMap, vAoCoords ).r - 1.0 ) * aoMapIntensity + 1.0;\n\t#endif\n\treflectedLight.indirectDiffuse *= ambientOcclusion;\n\t#if defined( USE_ENVMAP ) && defined( STANDARD )\n\t\tfloat dotNV = saturate( dot( geometry.normal, geometry.viewDir ) );\n\t\treflectedLight.indirectSpecular *= computeSpecularOcclusion( dotNV, ambientOcclusion, material.specularRoughness );\n\t#endif\n#endif";
+	var aomap_fragment = /* glsl */
+	"\n#if defined( USE_AOMAP ) || defined( USE_SSAOMAP )\n\n\t// reads channel R, compatible with a combined OcclusionRoughnessMetallic (RGB) texture\n\t#ifndef USE_SSAOMAP\n\n\t\tfloat ambientOcclusion = ( texture2D( aoMap, vUv2 ).r - 1.0 ) * aoMapIntensity + 1.0;\n\n\t#else\n\n\t\t#ifndef USE_SSAOMAPMATRIX\n\n\t\t\tvec2 vAoCoords = gl_FragCoord.xy / renderSize;\n\n\t\t#endif\n\n\t\tfloat ambientOcclusion = ( texture2D( ssaoMap, vAoCoords ).r - 1.0 ) * aoMapIntensity + 1.0;\n\n\t#endif\n\n\treflectedLight.indirectDiffuse *= ambientOcclusion;\n\n\t#if defined( USE_ENVMAP ) && defined( STANDARD )\n\n\t\tfloat dotNV = saturate( dot( geometry.normal, geometry.viewDir ) );\n\n\t\treflectedLight.indirectSpecular *= computeSpecularOcclusion( dotNV, ambientOcclusion, material.specularRoughness );\n\n\t#endif\n\n#endif\n";
 
-	var aomap_pars_fragment = "#if defined( USE_AOMAP ) || defined( USE_SSAOMAP )\n\t#ifndef USE_SSAOMAP\n\t\tuniform sampler2D aoMap;\n\t#else\n\t\tuniform sampler2D ssaoMap;\n\t\t#ifdef USE_SSAOMAPMATRIX\n\t\t\tvarying vec2 vAoCoords;\n\t\t#endif\n\t#endif\n\tuniform float aoMapIntensity;\n#endif";
+	var aomap_pars_fragment = /* glsl */
+	"\n#if defined( USE_AOMAP ) || defined( USE_SSAOMAP )\n\n\t#ifndef USE_SSAOMAP\n\n\t\tuniform sampler2D aoMap;\n\n\t#else\n\n\t\tuniform sampler2D ssaoMap;\n\n\t\t#ifdef USE_SSAOMAPMATRIX\n\n\t\t\tvarying vec2 vAoCoords;\n\n\t\t#endif\n\n\t#endif\n\n\tuniform float aoMapIntensity;\n\n#endif\n";
 
 	var aomap_vertex = /* glsl */
 	"\n\n#if defined( USE_SSAOMAP ) && defined(USE_SSAOMAPMATRIX )\n\n\tvec4 ssaoCoords = ssaoMapMatrix * modelMatrix * vec4(transformed, 1.0);\n\tvAoCoords = (ssaoCoords.xy / ssaoCoords.w) * 0.5 + 0.5;\n\n#endif\n\n";
@@ -18700,7 +18702,7 @@
 			p_uniforms.setValue(_gl, 'modelViewMatrix', object.modelViewMatrix);
 			p_uniforms.setValue(_gl, 'normalMatrix', object.normalMatrix);
 			p_uniforms.setValue(_gl, 'modelMatrix', object.matrixWorld);
-			if (_currentRenderTarget) _resolution.set(_currentRenderTarget.width, _currentRenderTarget.height);else _resolution.set(_width, _height);
+			if (_currentRenderTarget) _resolution.set(_currentRenderTarget.width, _currentRenderTarget.height);else _resolution.set(_width * _pixelRatio, _height * _pixelRatio).floor();
 			p_uniforms.setValue(_gl, 'renderSize', _resolution);
 			return program;
 		} // If uniforms are marked as clean, they don't need to be loaded to the GPU.
@@ -33969,6 +33971,23 @@
 		empty: function empty() {
 			return this.theta <= 0 || this.inf >= this.sup;
 		},
+		containsPoint: function () {
+			var tmp = new Vector3();
+			return function (point) {
+				tmp.subVectors(point, this.v);
+				var t = tmp.dot(this.axis);
+
+				if (t < this.inf || t > this.sup || Math.abs(t) < Number.MIN_VALUE) {
+					return false;
+				} else {
+					// radius at t
+					var r = Math.abs(t) * Math.tan(this.theta);
+					tmp.copy(this.axis).multiplyScalar(t).add(this.v);
+					tmp.sub(point);
+					return tmp.lengthSq() <= r * r;
+				}
+			};
+		}(),
 		getBoundingBox: function getBoundingBox(target) {
 			throw "not implemented yet, todo";
 		},
